@@ -17,7 +17,7 @@ public class ReadingGroupController {
     }
 
     @GetMapping("{groupId}")
-    public ReadingGroup getGroupDetail(@PathParam("groupId") long groupId) throws Exception {
+    public ReadingGroup getGroupDetail(@PathVariable("groupId") Long groupId) throws Exception {
         var group = readingGroupRepository.findById(groupId);
         if (group.isPresent()) {
             return group.get();
