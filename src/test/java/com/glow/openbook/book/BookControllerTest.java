@@ -20,12 +20,12 @@ class BookControllerTest {
     private BookRepository bookRepository;
 
     @AfterEach
-    void tearDown() {
+    public void tearDown() {
         bookRepository.deleteAll();
     }
 
     @Test
-    void getBookByIsbn() {
+    public void getBookByIsbn() {
         final List<Book> books = Arrays.asList(
                 Book.builder()
                         .isbn("9788972979616")
