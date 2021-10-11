@@ -81,6 +81,11 @@ class BookControllerTest {
                    .andExpect(jsonPath("$.data.largeCoverUrl", is(books.get(i).getLargeCoverUrl())))
             ;
         }
+    }
+
+    @Test
+    @WithMockUser
+    public void getBookByInvalidIsbn() throws Exception {
         mockMvc.perform(get("/book/invalidisbn").contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.statusMessage", is("NOT_FOUND")));
     }
