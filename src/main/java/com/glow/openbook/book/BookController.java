@@ -1,5 +1,6 @@
 package com.glow.openbook.book;
 
+import com.glow.openbook.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,12 +16,12 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping("/{isbn}")
-    public Book getBookByIsbn(@PathVariable("isbn") String isbn) throws Exception {
+    public ApiResponse<Book> getBookByIsbn(@PathVariable("isbn") String isbn) {
         Optional<Book> book = bookService.getBookByIsbn(isbn);
         if (book.isPresent()) {
-            return book.get();
+            return ApiResponse.successfulResponse(book.get());
         } else {
-            throw new Exception("Not found");
+            return ApiResponse.notFoundResponse();
         }
     }
 }
