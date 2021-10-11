@@ -15,9 +15,9 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.core.Is.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 @SpringBootTest
@@ -71,9 +71,17 @@ class BookControllerTest {
 
         for (int i = 0; i < books.size(); i++) {
             mockMvc.perform(get(String.format("/book/%s", books.get(i).getIsbn())).contentType(MediaType.APPLICATION_JSON))
-                   .andExpect(content().json(objectMapper.writeValueAsString(books.get(i))));
+                   .andExpect(jsonPath("$.statusMessage", is("SUCCESS")))
+                   .andExpect(jsonPath("$.data.isbn", is(books.get(i).getIsbn())))
+                   .andExpect(jsonPath("$.data.title", is(books.get(i).getTitle())))
+                   .andExpect(jsonPath("$.data.author", is(books.get(i).getAuthor())))
+                   .andExpect(jsonPath("$.data.publisher", is(books.get(i).getPublisher())))
+                   .andExpect(jsonPath("$.data.description", is(books.get(i).getDescription())))
+                   .andExpect(jsonPath("$.data.smallCoverUrl", is(books.get(i).getSmallCoverUrl())))
+                   .andExpect(jsonPath("$.data.largeCoverUrl", is(books.get(i).getLargeCoverUrl())))
+            ;
         }
         mockMvc.perform(get("/book/invalidisbn").contentType(MediaType.APPLICATION_JSON))
-               .andExpect(status().isNotFound());
+               .andExpect(jsonPath("$.statusMessage", is("NOT_FOUND")));
     }
 }
