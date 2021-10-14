@@ -64,7 +64,6 @@ class BookControllerTest {
     }
 
     @Test
-    @WithMockUser
     public void getBookByIsbn() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -83,7 +82,6 @@ class BookControllerTest {
     }
 
     @Test
-    @WithMockUser
     public void getBookByInvalidIsbn() throws Exception {
         mockMvc.perform(get("/book/invalidisbn").contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.statusMessage", is("NOT_FOUND")));
