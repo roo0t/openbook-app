@@ -12,7 +12,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping("/myinfo")
+    @GetMapping({"", "/"})
     public Member getCurrentMemberDetail() {
         return memberService.getCurrentMember();
     }
