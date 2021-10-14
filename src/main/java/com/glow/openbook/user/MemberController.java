@@ -1,5 +1,6 @@
 package com.glow.openbook.user;
 
+import com.glow.openbook.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +14,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping({"", "/"})
-    public Member getCurrentMemberDetail() {
-        return memberService.getCurrentMember();
+    public ApiResponse<Member> getCurrentMemberDetail() {
+        return ApiResponse.successfulResponse(memberService.getCurrentMember());
     }
 }
