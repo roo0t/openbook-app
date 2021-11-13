@@ -2,6 +2,7 @@ package com.glow.openbook.book;
 
 import lombok.*;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -17,6 +18,7 @@ public class Book {
     private String title;
     private String author;
     private String publisher;
+    @Column(length = 65535)
     private String description;
     private String smallCoverUrl;
     private String largeCoverUrl;
