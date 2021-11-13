@@ -2,11 +2,9 @@ package com.glow.openbook.book;
 
 import com.glow.openbook.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -23,5 +21,11 @@ public class BookController {
         } else {
             return ApiResponse.notFoundResponse();
         }
+    }
+
+    @GetMapping({"", "/"})
+    public ApiResponse<List<Book>> searchBooks(@RequestParam("query") String query) {
+        List<Book> searchResult = bookService.searchBooks(query);
+        return ApiResponse.successfulResponse(searchResult);
     }
 }

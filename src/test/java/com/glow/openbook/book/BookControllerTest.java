@@ -85,4 +85,11 @@ class BookControllerTest {
         mockMvc.perform(get("/book/invalidisbn").contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.statusMessage", is("NOT_FOUND")));
     }
+
+    @Test
+    public void searchBooks() throws Exception {
+        mockMvc.perform(get("/book?query=위대한 이야기").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.statusMessage", is("SUCCESS")))
+                .andExpect(jsonPath("$.data[0].title", is("위대한 이야기 - 아름다움, 선함, 진리에 대한 메타 내러티브")));
+    }
 }
