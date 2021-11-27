@@ -29,7 +29,7 @@ import lombok.Getter;
     },
  */
 @Getter
-public class AladinBookEntry {
+public class AladinBookSearchResultEntry {
     private String title;
     private String link;
     private String author;

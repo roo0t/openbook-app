@@ -26,8 +26,9 @@ public class Book {
     private String publisher;
     @Column(length = 65535)
     private String description;
-    private String smallCoverUrl;
-    private String largeCoverUrl;
+    private String coverImageUrl;
+    private String publishedOn;
+    private int totalPages;
 
     public Authoring addAuthor(final String name, final String role) {
         Authoring authoring = new Authoring(this, name, role);

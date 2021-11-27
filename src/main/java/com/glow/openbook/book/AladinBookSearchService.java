@@ -8,6 +8,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,14 @@ public class AladinBookSearchService {
     private final BookRepository bookRepository;
 
     public List<Book> search(final String query) {
+        final List<String> isbns = searchOnAladin(query);
+        return isbns.stream()
+                .map((isbn) -> lookUpBook(isbn))
+                .filter((book) -> book.isPresent())
+                .map((book) -> book.get()).toList();
+    }
+
+    private List<String> searchOnAladin(final String query) {
         final UriComponents uriComponents = UriComponentsBuilder.newInstance()
                 .scheme("http")
                 .host("www.aladin.co.kr")
@@ -31,21 +40,54 @@ public class AladinBookSearchService {
         RestTemplate restTemplate = new RestTemplate();
         final AladinBookSearchResult result =
                 restTemplate.getForObject(uriComponents.toUriString(), AladinBookSearchResult.class);
-
-        var books = result
-                .getItem().stream()
-                .map((entry) -> mapAladinBookEntryToBookEntity(entry)).toList();
-        return bookRepository.saveAll(books);
+        return result.getItem().stream().map((entry) -> entry.getIsbn13()).toList();
     }
 
-    private Book mapAladinBookEntryToBookEntity(AladinBookEntry bookEntry) {
+    private Optional<Book> lookUpBook(final String isbn) {
+        Optional<Book> book = bookRepository.findById(isbn);
+        if (book.isPresent()) {
+            return book;
+        } else {
+            Optional<Book> bookEntity = lookUpBookOnAladin(isbn);
+            if (bookEntity.isPresent()) {
+                bookRepository.save(bookEntity.get());
+            }
+            return bookEntity;
+        }
+    }
+
+    private Optional<Book> lookUpBookOnAladin(final String isbn) {
+        final UriComponents uriComponents = UriComponentsBuilder.newInstance()
+                .scheme("http")
+                .host("www.aladin.co.kr")
+                .path("/ttb/api/ItemLookUp.aspx")
+                .queryParam("Version", "20131101")
+                .queryParam("Output", "JS")
+                .queryParam("Cover", "Big")
+                .queryParam("TTBKey", aladinTtbKey)
+                .queryParam("ItemIdType", "ISBN13")
+                .queryParam("ItemId", isbn)
+                .build();
+        RestTemplate restTemplate = new RestTemplate();
+        final AladinBookLookUpResult result =
+                restTemplate.getForObject(uriComponents.toUriString(), AladinBookLookUpResult.class);
+        if (!result.getItem().isEmpty()) {
+            Book bookEntity = mapAladinBookEntryToBookEntity(result.getItem().get(0));
+            return Optional.of(bookEntity);
+        } else {
+            return null;
+        }
+    }
+
+    private Book mapAladinBookEntryToBookEntity(AladinBookLookUpResultEntry bookEntry) {
         Book book = Book.builder()
                 .isbn(bookEntry.getIsbn13())
                 .title(bookEntry.getTitle())
                 .publisher(bookEntry.getPublisher())
                 .description(bookEntry.getDescription())
-                .smallCoverUrl(bookEntry.getCover())
-                .largeCoverUrl(bookEntry.getCover())
+                .coverImageUrl(bookEntry.getCover())
+                .publishedOn(bookEntry.getPubDate())
+                .totalPages(bookEntry.getSubInfo().getItemPage())
                 .build();
         book.setAuthors(bookEntry.getAuthor());
         return book;

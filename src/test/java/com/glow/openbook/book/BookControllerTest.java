@@ -78,8 +78,7 @@ class BookControllerTest {
                    .andExpect(jsonPath("$.data.authors", hasSize(books.get(i).getAuthors().size())))
                    .andExpect(jsonPath("$.data.publisher", is(books.get(i).getPublisher())))
                    .andExpect(jsonPath("$.data.description", is(books.get(i).getDescription())))
-                   .andExpect(jsonPath("$.data.smallCoverUrl", is(books.get(i).getSmallCoverUrl())))
-                   .andExpect(jsonPath("$.data.largeCoverUrl", is(books.get(i).getLargeCoverUrl())))
+                   .andExpect(jsonPath("$.data.coverImageUrl", is(books.get(i).getCoverImageUrl())))
             ;
         }
     }
