@@ -22,7 +22,6 @@ public class BookService {
     }
 
     List<Book> searchBooks(final String query) {
-        final List<Book> aladinSearchResult = aladinBookSearchService.search(query);
-        return bookRepository.saveAll(aladinSearchResult);
+        return aladinBookSearchService.search(query);
     }
 }

@@ -1,8 +1,6 @@
 package com.glow.openbook.book;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -10,14 +8,16 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class AladinBookSearchService {
     @Value("${aladin-ttb-key}")
     private String aladinTtbKey;
 
-    List<Book> search(final String query) {
+    private final BookRepository bookRepository;
+
+    public List<Book> search(final String query) {
         final UriComponents uriComponents = UriComponentsBuilder.newInstance()
                 .scheme("http")
                 .host("www.aladin.co.kr")
@@ -32,20 +32,22 @@ public class AladinBookSearchService {
         final AladinBookSearchResult result =
                 restTemplate.getForObject(uriComponents.toUriString(), AladinBookSearchResult.class);
 
-        return result
+        var books = result
                 .getItem().stream()
                 .map((entry) -> mapAladinBookEntryToBookEntity(entry)).toList();
+        return bookRepository.saveAll(books);
     }
 
-    Book mapAladinBookEntryToBookEntity(AladinBookEntry bookEntry) {
-        return new Book(
-                bookEntry.getIsbn13(),
-                bookEntry.getTitle(),
-                bookEntry.getAuthor(),
-                bookEntry.getPublisher(),
-                bookEntry.getDescription(),
-                "",
-                bookEntry.getCover()
-        );
+    private Book mapAladinBookEntryToBookEntity(AladinBookEntry bookEntry) {
+        Book book = Book.builder()
+                .isbn(bookEntry.getIsbn13())
+                .title(bookEntry.getTitle())
+                .publisher(bookEntry.getPublisher())
+                .description(bookEntry.getDescription())
+                .smallCoverUrl(bookEntry.getCover())
+                .largeCoverUrl(bookEntry.getCover())
+                .build();
+        book.setAuthors(bookEntry.getAuthor());
+        return book;
     }
 }
