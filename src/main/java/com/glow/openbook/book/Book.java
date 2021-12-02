@@ -29,6 +29,9 @@ public class Book {
     private String coverImageUrl;
     private String publishedOn;
     private int totalPages;
+    @ElementCollection
+    @Builder.Default
+    private List<String> tags = new ArrayList<>();
 
     public Authoring addAuthor(final String name, final String role) {
         Authoring authoring = new Authoring(this, name, role);

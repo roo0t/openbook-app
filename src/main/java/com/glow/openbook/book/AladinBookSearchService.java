@@ -7,6 +7,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,6 +81,7 @@ public class AladinBookSearchService {
     }
 
     private Book mapAladinBookEntryToBookEntity(AladinBookLookUpResultEntry bookEntry) {
+        var categoryHierarchy = bookEntry.getCategoryName().split(">");
         Book book = Book.builder()
                 .isbn(bookEntry.getIsbn13())
                 .title(bookEntry.getTitle())
@@ -88,6 +90,7 @@ public class AladinBookSearchService {
                 .coverImageUrl(bookEntry.getCover())
                 .publishedOn(bookEntry.getPubDate())
                 .totalPages(bookEntry.getSubInfo().getItemPage())
+                .tags(Arrays.asList(categoryHierarchy[categoryHierarchy.length - 1]))
                 .build();
         book.setAuthors(bookEntry.getAuthor());
         return book;
