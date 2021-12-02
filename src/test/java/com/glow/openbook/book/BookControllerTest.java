@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.Arrays;
@@ -36,23 +37,26 @@ class BookControllerTest {
     public void setUp() {
         Book testBook1 = Book.builder()
                 .isbn("9788972979616")
-                .title("난치의 상상력")
+                .title("난치의 상상력 - 질병과 장애, 그 경계를 살아가는 청년의 한국 사회 관찰기")
                 .publisher("동녘")
-                .description("크론병으로 투병 중인 20대 청년이 써내려간 ‘청춘 고발기’이자 아픈 몸을 대하는 한국 사회의 모순을 비판한 날카로운 보고서다. 저자의 몸은 청춘과 나이듦, 질병과 장애, 정상과 비정상이 교차하는 전쟁터다. 사람들은 아파 보이지 않는다는 이유로 저자를 의심하며 장애인 옆에서는 ‘비장애인’으로, 비장애인 옆에서는 ‘장애인’으로 대했다.")
+                .description("저자는 “아파도 청춘이다”라는 윗세대의 게으른 충고를 일갈하는 것을 넘어 “그런 청년은 없다”고 말하며 경계 자체를 부숴버린다. 질병과 장애를 없애야 할 것, 어서 빨리 교정해야 할 것으로 다루는 한국 사회의 폭력을 거침없이 비판한다.")
+                .coverImageUrl("https://image.aladin.co.kr/product/24791/5/cover/8972979619_1.jpg")
+                .tags("국내도서;사회과학;비평/칼럼;한국사회비평/칼럼")
                 .build();
         testBook1.addAuthor("안희제", "지은이");
 
         Book testBook2 = Book.builder()
                 .isbn("9788966262472")
-                .title("클린 아키텍처")
+                .title("클린 아키텍처 - 소프트웨어 구조와 설계의 원칙")
                 .publisher("인사이트")
-                .description("소프트웨어 아키텍처의 보편 원칙을 적용하면 소프트웨어 수명 전반에서 개발자 생산성을 획기적으로 끌어올릴 수 있다. 《클린 코드》와 《클린 코더》의 저자이자 전설적인 소프트웨어 장인인 로버트 C. 마틴은 이 책 《클린 아키텍처》에서 이러한 보편 원칙들을 설명하고 여러분이 실무에 적용할 수 있도록 도와준다.")
+                .description("소프트웨어 아키텍처의 보편 원칙을 적용하면 소프트웨어 수명 전반에서 개발자 생산성을 획기적으로 끌어올릴 수 있다. 《클린 코드》와 《클린 코더》의 저자이자 전설적인 소프트웨어 장인인 로버트 C. 마틴은 이 책에서 이러한 보편 원칙들을 설명하고 여러분이 실무에 적용할 수 있도록 도와준다.")
+                .coverImageUrl("https://image.aladin.co.kr/product/20232/24/cover/8966262473_1.jpg")
+                .tags("국내도서;컴퓨터/모바일;컴퓨터 공학;소프트웨어 공학")
                 .build();
         testBook2.addAuthor("로버트 C. 마틴", "지은이");
         testBook2.addAuthor("송준이", "옮긴이");
 
         books = Arrays.asList(testBook1, testBook2);
-        bookRepository.saveAll(books);
 
         mockMvc = standaloneSetup(bookController)
                 .addFilter(new CharacterEncodingFilter("UTF-8", true))
@@ -79,6 +83,7 @@ class BookControllerTest {
                    .andExpect(jsonPath("$.data.publisher", is(books.get(i).getPublisher())))
                    .andExpect(jsonPath("$.data.description", is(books.get(i).getDescription())))
                    .andExpect(jsonPath("$.data.coverImageUrl", is(books.get(i).getCoverImageUrl())))
+                   .andExpect(jsonPath("$.data.tags", is(books.get(i).getTags())))
             ;
         }
     }

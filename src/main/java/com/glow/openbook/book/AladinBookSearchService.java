@@ -44,7 +44,7 @@ public class AladinBookSearchService {
         return result.getItem().stream().map((entry) -> entry.getIsbn13()).toList();
     }
 
-    private Optional<Book> lookUpBook(final String isbn) {
+    public Optional<Book> lookUpBook(final String isbn) {
         Optional<Book> book = bookRepository.findById(isbn);
         if (book.isPresent()) {
             return book;
@@ -72,11 +72,11 @@ public class AladinBookSearchService {
         RestTemplate restTemplate = new RestTemplate();
         final AladinBookLookUpResult result =
                 restTemplate.getForObject(uriComponents.toUriString(), AladinBookLookUpResult.class);
-        if (!result.getItem().isEmpty()) {
+        if (result.getItem() != null && !result.getItem().isEmpty()) {
             Book bookEntity = mapAladinBookEntryToBookEntity(result.getItem().get(0));
             return Optional.of(bookEntity);
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -90,7 +90,7 @@ public class AladinBookSearchService {
                 .coverImageUrl(bookEntry.getCover())
                 .publishedOn(bookEntry.getPubDate())
                 .totalPages(bookEntry.getSubInfo().getItemPage())
-                .tags(Arrays.asList(categoryHierarchy[categoryHierarchy.length - 1]))
+                .tags(String.join(";", categoryHierarchy))
                 .build();
         book.setAuthors(bookEntry.getAuthor());
         return book;
