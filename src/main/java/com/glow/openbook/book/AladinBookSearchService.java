@@ -7,6 +7,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +42,11 @@ public class AladinBookSearchService {
         RestTemplate restTemplate = new RestTemplate();
         final AladinBookSearchResult result =
                 restTemplate.getForObject(uriComponents.toUriString(), AladinBookSearchResult.class);
-        return result.getItem().stream().map((entry) -> entry.getIsbn13()).toList();
+        if (result.getItem() == null) {
+            return new ArrayList<String>();
+        } else {
+            return result.getItem().stream().map((entry) -> entry.getIsbn13()).toList();
+        }
     }
 
     public Optional<Book> lookUpBook(final String isbn) {
