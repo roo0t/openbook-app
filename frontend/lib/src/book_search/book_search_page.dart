@@ -1,10 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:openbook/src/book/book_detail_page.dart';
 import 'package:openbook/src/book/book_vo.dart';
-import 'package:openbook/src/book/reading_books_test_data.dart';
 
 import 'book_search_controller.dart';
 
@@ -13,10 +10,6 @@ class BookSearchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List readingBooksJson = jsonDecode(readingBooksTestData);
-    List<BookVo> books =
-        readingBooksJson.map((json) => BookVo.fromJson(json)).toList();
-
     Get.put(BookSearchController());
 
     return WillPopScope(
