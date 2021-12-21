@@ -1,7 +1,11 @@
 package com.glow.openbook.member;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.glow.openbook.user.MemberController;
 import com.glow.openbook.user.MemberService;
+import com.glow.openbook.user.auth.AuthenticationRequest;
+import com.jayway.jsonpath.JsonPath;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +14,16 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import static org.hamcrest.Matchers.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
@@ -44,19 +50,29 @@ public class MemberControllerTest {
     }
 
     @Test
-    public void testMyinfo() throws Exception {
-        final String emailAddress = "test@glowingreaders.club";
-        final String plainPassword = "abcd1234";
-        memberService.register(emailAddress, plainPassword);
+    public void testMemberPageUnauthorized() throws Exception {
+        mockMvc.perform(get("/member"))
+                .andExpect(status().isForbidden());
+    }
 
-        final MockHttpSession session = (MockHttpSession)mockMvc
-                .perform(formLogin().user(emailAddress).password(plainPassword))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(authenticated())
-                .andReturn().getRequest().getSession();
-        mockMvc.perform(get("/member").session(session).with(csrf().asHeader()))
+    @Test
+    public void testSignIn() throws Exception {
+        AuthenticationRequest request = new AuthenticationRequest();
+        request.setEmailAddress("test@glowingreaders.club");
+        request.setPassword("abcd1234");
+        ObjectMapper mapper = new ObjectMapper();
+        MvcResult signInResult = mockMvc.perform(post("/member/signin")
+                        .contentType("application/json")
+                        .content(mapper.writeValueAsString(request)))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.statusMessage", is("SUCCESS")))
-                .andExpect(jsonPath("$.data.emailAddress", is(emailAddress)));
+                .andExpect(jsonPath("$.username", Matchers.is(request.getEmailAddress())))
+                .andExpect(jsonPath("$.authorities", Matchers.hasSize(1)))
+                .andExpect(jsonPath("$.authorities[0].authority", Matchers.is("ROLE_MEMBER")))
+                .andReturn();
+        String token = JsonPath.read(signInResult.getResponse().getContentAsString(), "$.token");
+        mockMvc.perform(get("/member").header("X-AUTH-TOKEN", token))
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$.statusMessage", Matchers.is("SUCCESS")))
+                .andExpect(jsonPath("$.data.emailAddress", Matchers.is(request.getEmailAddress())));
     }
 }
