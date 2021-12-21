@@ -21,6 +21,10 @@ public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
 
+    public Optional<Member> getMember(String emailAddress) {
+        return memberRepository.findById(emailAddress);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String emailAddress) throws UsernameNotFoundException {
         Optional<Member> memberWrapper = memberRepository.findById(emailAddress);
