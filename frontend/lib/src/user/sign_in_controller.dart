@@ -18,9 +18,9 @@ class SignInController extends GetxController {
     shouldShowSignInFailedMessage(false);
   }
 
-  signIn() {
-    var result =
-        Get.find<UserController>().signIn(emailAddress.value, password.value);
+  signIn() async {
+    var result = await Get.find<UserController>()
+        .signIn(emailAddress.value, password.value);
 
     if (result) {
       Get.offAll(() => const HomePage());

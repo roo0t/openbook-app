@@ -105,7 +105,7 @@ class SignInPage extends StatelessWidget {
 
   ElevatedButton buildSignInButton(controller) {
     return ElevatedButton(
-      onPressed: () => controller.signIn(),
+      onPressed: () async => await controller.signIn(),
       child: const Text('로그인'),
     );
   }
