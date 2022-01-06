@@ -11,11 +11,11 @@ import java.util.Optional;
 public class BookService {
     private final AladinBookSearchService aladinBookSearchService;
 
-    Optional<Book> getBookByIsbn(final String isbn) {
+    public Optional<Book> getBookByIsbn(final String isbn) {
         return aladinBookSearchService.lookUpBook(isbn);
     }
 
-    List<Book> searchBooks(final String query) {
+    public List<Book> searchBooks(final String query) {
         return aladinBookSearchService.search(query);
     }
 }
