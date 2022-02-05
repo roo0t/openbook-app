@@ -1,6 +1,8 @@
 package com.glow.openbook.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -93,5 +95,17 @@ public class MemberService implements UserDetailsService {
         Member member = new Member(emailAddress, encryptedPassword, generateRandomNickname());
         memberRepository.save(member);
         return member;
+    }
+
+    public UserDetails authenticate(
+            AuthenticationManager authenticationManager,
+            String emailAddress,
+            String plainPassword) {
+        UsernamePasswordAuthenticationToken token =
+                new UsernamePasswordAuthenticationToken(emailAddress, plainPassword);
+        Authentication authentication = authenticationManager.authenticate(token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return loadUserByUsername(emailAddress);
     }
 }

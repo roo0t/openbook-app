@@ -6,11 +6,7 @@ import com.glow.openbook.user.auth.AuthenticationToken;
 import com.glow.openbook.user.auth.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -19,10 +15,9 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor
 @RequestMapping("member")
 public class MemberController {
-
     private final MemberService memberService;
-    private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+    private final AuthenticationManager authenticationManager;
 
     @GetMapping({"", "/"})
     public ApiResponse<Member> getCurrentMemberDetail() {
@@ -36,12 +31,7 @@ public class MemberController {
         final String emailAddress = authenticationRequest.getEmailAddress();
         final String password = authenticationRequest.getPassword();
 
-        UsernamePasswordAuthenticationToken token =
-                new UsernamePasswordAuthenticationToken(emailAddress, password);
-        Authentication authentication = authenticationManager.authenticate(token);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        UserDetails member = memberService.loadUserByUsername(emailAddress);
+        UserDetails member = memberService.authenticate(authenticationManager, emailAddress, password);
         String accessToken = jwtProvider.createToken(
                 emailAddress,
                 member.getAuthorities().stream().map((auth) -> auth.getAuthority()).toList());
