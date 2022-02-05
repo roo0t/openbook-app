@@ -62,14 +62,14 @@ public class MemberControllerTest {
         request.setPassword("abcd1234");
         ObjectMapper mapper = new ObjectMapper();
         MvcResult signInResult = mockMvc.perform(post("/member/signin")
-                        .contentType("application/json")
+                        .contentType("application/json;charset=UTF-8")
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.username", Matchers.is(request.getEmailAddress())))
-                .andExpect(jsonPath("$.authorities", Matchers.hasSize(1)))
-                .andExpect(jsonPath("$.authorities[0].authority", Matchers.is("ROLE_MEMBER")))
+                .andExpect(jsonPath("$.data.username", Matchers.is(request.getEmailAddress())))
+                .andExpect(jsonPath("$.data.authorities", Matchers.hasSize(1)))
+                .andExpect(jsonPath("$.data.authorities[0].authority", Matchers.is("ROLE_MEMBER")))
                 .andReturn();
-        String token = JsonPath.read(signInResult.getResponse().getContentAsString(), "$.token");
+        String token = JsonPath.read(signInResult.getResponse().getContentAsString(), "$.data.token");
         mockMvc.perform(get("/member").header("X-AUTH-TOKEN", token))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.statusMessage", Matchers.is("SUCCESS")))

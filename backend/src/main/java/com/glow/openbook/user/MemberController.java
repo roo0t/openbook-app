@@ -30,7 +30,7 @@ public class MemberController {
     }
 
     @PostMapping("/signin")
-    public AuthenticationToken signIn(
+    public ApiResponse<AuthenticationToken> signIn(
             @RequestBody AuthenticationRequest authenticationRequest,
             HttpSession session) {
         final String emailAddress = authenticationRequest.getEmailAddress();
@@ -45,9 +45,10 @@ public class MemberController {
         String accessToken = jwtProvider.createToken(
                 emailAddress,
                 member.getAuthorities().stream().map((auth) -> auth.getAuthority()).toList());
-        return new AuthenticationToken(
+        AuthenticationToken token = new AuthenticationToken(
                 member.getUsername(),
                 member.getAuthorities(),
                 accessToken);
+        return ApiResponse.successfulResponse(token);
     }
 }
