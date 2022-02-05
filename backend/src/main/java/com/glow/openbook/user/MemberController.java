@@ -31,7 +31,7 @@ public class MemberController {
 
     @PostMapping("/signin")
     public AuthenticationToken signIn(
-            AuthenticationRequest authenticationRequest,
+            @RequestBody AuthenticationRequest authenticationRequest,
             HttpSession session) {
         final String emailAddress = authenticationRequest.getEmailAddress();
         final String password = authenticationRequest.getPassword();
