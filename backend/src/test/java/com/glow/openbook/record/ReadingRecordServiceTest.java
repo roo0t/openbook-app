@@ -2,7 +2,7 @@ package com.glow.openbook.record;
 
 import com.glow.openbook.book.Book;
 import com.glow.openbook.book.BookService;
-import com.glow.openbook.user.MemberService;
+import com.glow.openbook.member.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

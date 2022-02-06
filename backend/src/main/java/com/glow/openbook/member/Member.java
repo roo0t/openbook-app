@@ -1,4 +1,4 @@
-package com.glow.openbook.user;
+package com.glow.openbook.member;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;

@@ -1,6 +1,6 @@
-package com.glow.openbook.user.auth;
+package com.glow.openbook.member.auth;
 
-import com.glow.openbook.user.MemberService;
+import com.glow.openbook.member.MemberService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -73,10 +73,14 @@ public class JwtProvider {
     // jwt 의 유효성 및 만료일자 확인
     public boolean validationToken(String token) {
         try {
-            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            Jws<Claims> claimsJws = parseJwt(token);
             return !claimsJws.getBody().getExpiration().before(new Date()); // 만료날짜가 현재보다 이전이면 false
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public Jws<Claims> parseJwt(String token) {
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
     }
 }

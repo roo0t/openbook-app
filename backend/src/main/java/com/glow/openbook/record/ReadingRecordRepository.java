@@ -1,7 +1,6 @@
 package com.glow.openbook.record;
 
-import com.glow.openbook.book.Book;
-import com.glow.openbook.user.Member;
+import com.glow.openbook.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

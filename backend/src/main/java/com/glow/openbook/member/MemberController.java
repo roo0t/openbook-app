@@ -1,9 +1,9 @@
-package com.glow.openbook.user;
+package com.glow.openbook.member;
 
 import com.glow.openbook.api.ApiResponse;
-import com.glow.openbook.user.auth.AuthenticationRequest;
-import com.glow.openbook.user.auth.AuthenticationToken;
-import com.glow.openbook.user.auth.JwtProvider;
+import com.glow.openbook.member.auth.AuthenticationRequest;
+import com.glow.openbook.member.auth.AuthenticationToken;
+import com.glow.openbook.member.auth.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,8 +1,8 @@
 package com.glow.openbook.config;
 
-import com.glow.openbook.user.MemberService;
-import com.glow.openbook.user.auth.JwtAuthenticationFilter;
-import com.glow.openbook.user.auth.JwtProvider;
+import com.glow.openbook.member.MemberService;
+import com.glow.openbook.member.auth.JwtAuthenticationFilter;
+import com.glow.openbook.member.auth.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

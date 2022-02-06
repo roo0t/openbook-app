@@ -1,17 +1,12 @@
 package com.glow.openbook.record;
 
 import com.glow.openbook.book.Book;
-import com.glow.openbook.book.BookRepository;
 import com.glow.openbook.book.BookService;
-import com.glow.openbook.user.Member;
+import com.glow.openbook.member.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

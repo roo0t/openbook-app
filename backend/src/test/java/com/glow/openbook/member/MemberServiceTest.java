@@ -1,7 +1,5 @@
 package com.glow.openbook.member;
 
-import com.glow.openbook.user.Member;
-import com.glow.openbook.user.MemberService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

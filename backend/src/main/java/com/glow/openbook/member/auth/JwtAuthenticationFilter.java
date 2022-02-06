@@ -1,4 +1,4 @@
-package com.glow.openbook.user.auth;
+package com.glow.openbook.member.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

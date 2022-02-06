@@ -1,10 +1,9 @@
 package com.glow.openbook;
 
-import com.glow.openbook.book.Book;
 import com.glow.openbook.book.BookRepository;
 import com.glow.openbook.readinggroup.ReadingGroup;
 import com.glow.openbook.readinggroup.ReadingGroupRepository;
-import com.glow.openbook.user.MemberService;
+import com.glow.openbook.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

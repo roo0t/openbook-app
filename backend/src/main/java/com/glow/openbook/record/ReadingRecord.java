@@ -3,7 +3,7 @@ package com.glow.openbook.record;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.glow.openbook.book.Book;
-import com.glow.openbook.user.Member;
+import com.glow.openbook.member.Member;
 import lombok.Getter;
 import lombok.Setter;
 

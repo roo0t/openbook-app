@@ -1,4 +1,4 @@
-package com.glow.openbook.user;
+package com.glow.openbook.member;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
