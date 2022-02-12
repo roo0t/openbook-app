@@ -43,26 +43,28 @@ public class MemberControllerTest {
     }
 
     @Test
-    public void testMemberPageUnauthorized() throws Exception {
+    public void unauthenticated_access_is_not_allowed_to_member_detail() throws Exception {
         mockMvc.perform(get("/member"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    public void testSignIn() throws Exception {
+    public void valid_authentication_grants_access_to_member_detail() throws Exception {
         AuthenticationRequest request = new AuthenticationRequest();
         request.setEmailAddress("test@glowingreaders.club");
         request.setPassword("abcd1234");
         ObjectMapper mapper = new ObjectMapper();
-        MvcResult signInResult = mockMvc.perform(post("/member/signin")
+        var requestString = mapper.writeValueAsString(request);
+
+        final MvcResult signInResult = mockMvc.perform(post("/member/signin")
                         .contentType("application/json;charset=UTF-8")
-                        .content(mapper.writeValueAsString(request)))
+                        .content(requestString))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.data.username", Matchers.is(request.getEmailAddress())))
                 .andExpect(jsonPath("$.data.authorities", Matchers.hasSize(1)))
                 .andExpect(jsonPath("$.data.authorities[0].authority", Matchers.is("ROLE_MEMBER")))
                 .andReturn();
-        String token = JsonPath.read(signInResult.getResponse().getContentAsString(), "$.data.token");
+        final String token = JsonPath.read(signInResult.getResponse().getContentAsString(), "$.data.token");
         mockMvc.perform(get("/member").header("X-AUTH-TOKEN", token))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.statusMessage", Matchers.is("SUCCESS")))
