@@ -91,7 +91,10 @@ public class MemberService implements UserDetailsService {
     }
 
     @Transactional
-    public Member register(String emailAddress, String plainPassword) {
+    public Member register(String emailAddress, String plainPassword) throws MemberAlreadyExistsException {
+        if (memberRepository.findById(emailAddress).isPresent()) {
+            throw new MemberAlreadyExistsException();
+        }
         String encryptedPassword = passwordEncoder.encode(plainPassword);
         Member member = new Member(emailAddress, encryptedPassword, generateRandomNickname());
         memberRepository.save(member);

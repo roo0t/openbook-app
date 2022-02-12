@@ -2,6 +2,7 @@ package com.glow.openbook.record;
 
 import com.glow.openbook.book.Book;
 import com.glow.openbook.book.BookService;
+import com.glow.openbook.member.MemberAlreadyExistsException;
 import com.glow.openbook.member.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ public class ReadingRecordServiceTest {
     private ReadingRecordRepository readingRecordRepository;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws MemberAlreadyExistsException {
         memberService.register("test@example.com", "abcd1234");
     }
 
