@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -22,6 +22,8 @@ import java.util.*;
 public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
+
+    private final PasswordEncoder passwordEncoder;
 
     public Optional<Member> getMember(String emailAddress) {
         return memberRepository.findById(emailAddress);
@@ -90,7 +92,6 @@ public class MemberService implements UserDetailsService {
 
     @Transactional
     public Member register(String emailAddress, String plainPassword) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encryptedPassword = passwordEncoder.encode(plainPassword);
         Member member = new Member(emailAddress, encryptedPassword, generateRandomNickname());
         memberRepository.save(member);
