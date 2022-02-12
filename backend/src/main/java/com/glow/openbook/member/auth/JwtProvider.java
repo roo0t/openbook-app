@@ -62,7 +62,7 @@ public class JwtProvider {
 
     // jwt 에서 회원 구분 Pk 추출
     public String getUserPk(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        return parseJwt(token).getBody().getSubject();
     }
 
     // HTTP Request 의 Header 에서 Token Parsing -> "X-AUTH-TOKEN: jwt"
