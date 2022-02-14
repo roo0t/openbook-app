@@ -30,7 +30,7 @@ public class ReadingRecordServiceTest {
 
     @BeforeEach
     public void setUp() throws MemberAlreadyExistsException {
-        memberService.register("test@example.com", "abcd1234");
+        memberService.signUp("test@example.com", "abcd1234");
     }
 
     @Test

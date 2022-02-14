@@ -91,7 +91,7 @@ public class MemberService implements UserDetailsService {
     }
 
     @Transactional
-    public Member register(String emailAddress, String plainPassword) throws MemberAlreadyExistsException {
+    public Member signUp(String emailAddress, String plainPassword) throws MemberAlreadyExistsException {
         if (memberRepository.findById(emailAddress).isPresent()) {
             throw new MemberAlreadyExistsException();
         }

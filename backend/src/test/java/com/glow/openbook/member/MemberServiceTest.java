@@ -42,7 +42,7 @@ public class MemberServiceTest {
         when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
 
         // Action
-        Member member = memberService.register(emailAddress, password);
+        Member member = memberService.signUp(emailAddress, password);
 
         // Assert
         verify(memberRepository, times(1))
@@ -67,7 +67,7 @@ public class MemberServiceTest {
         when(memberRepository.save(argThat(m -> m.getEmailAddress().equals(emailAddress)))).thenReturn(member);
 
         // Action
-        Throwable thrown = catchThrowable(() -> memberService.register(emailAddress, password));
+        Throwable thrown = catchThrowable(() -> memberService.signUp(emailAddress, password));
 
         // Assert
         assertThat(thrown).isInstanceOf(MemberAlreadyExistsException.class);
