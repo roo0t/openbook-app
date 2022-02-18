@@ -9,8 +9,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("member")
@@ -26,19 +24,36 @@ public class MemberController {
 
     @PostMapping("/signin")
     public ApiResponse<AuthenticationToken> signIn(
-            @RequestBody AuthenticationRequest authenticationRequest,
-            HttpSession session) {
+            @RequestBody AuthenticationRequest authenticationRequest) {
         final String emailAddress = authenticationRequest.getEmailAddress();
         final String password = authenticationRequest.getPassword();
 
-        UserDetails member = memberService.authenticate(authenticationManager, emailAddress, password);
+        UserDetails userDetails = memberService.authenticate(authenticationManager, emailAddress, password);
+        return ApiResponse.successfulResponse(makeAuthenticationToken(userDetails));
+    }
+
+    @PostMapping("/signup")
+    public ApiResponse<AuthenticationToken> signUp(@RequestBody SignUpRequest signUpRequest) {
+        UserDetails userDetails;
+        try {
+            userDetails = memberService.signUpAndSignIn(
+                    authenticationManager,
+                    signUpRequest.getEmailAddress(),
+                    signUpRequest.getPassword());
+        } catch (MemberAlreadyExistsException e) {
+            return ApiResponse.invalidOperationResponse();
+        }
+        return ApiResponse.successfulResponse(makeAuthenticationToken(userDetails));
+    }
+
+    private AuthenticationToken makeAuthenticationToken(UserDetails userDetails) {
         String accessToken = jwtProvider.createToken(
-                emailAddress,
-                member.getAuthorities().stream().map((auth) -> auth.getAuthority()).toList());
+                userDetails.getUsername(),
+                userDetails.getAuthorities().stream().map((auth) -> auth.getAuthority()).toList());
         AuthenticationToken token = new AuthenticationToken(
-                member.getUsername(),
-                member.getAuthorities(),
+                userDetails.getUsername(),
+                userDetails.getAuthorities(),
                 accessToken);
-        return ApiResponse.successfulResponse(token);
+        return token;
     }
 }

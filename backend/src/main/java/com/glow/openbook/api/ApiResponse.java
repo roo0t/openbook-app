@@ -17,4 +17,8 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> notFoundResponse() {
         return (ApiResponse<T>)(builder().statusMessage(StatusMessage.NOT_FOUND).build());
     }
+
+    public static <T> ApiResponse<T> invalidOperationResponse() {
+        return (ApiResponse<T>)(builder().statusMessage(StatusMessage.INVALID_OPERATION).build());
+    }
 }
