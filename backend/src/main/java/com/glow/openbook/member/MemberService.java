@@ -101,6 +101,13 @@ public class MemberService implements UserDetailsService {
         return member;
     }
 
+    public UserDetails signUpAndSignIn(
+            AuthenticationManager authenticationManager,
+            String emailAddress, String plainPassword) throws MemberAlreadyExistsException {
+        signUp(emailAddress, plainPassword);
+        return authenticate(authenticationManager, emailAddress, plainPassword);
+    }
+
     public UserDetails authenticate(
             AuthenticationManager authenticationManager,
             String emailAddress,
