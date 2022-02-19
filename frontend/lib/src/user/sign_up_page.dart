@@ -38,37 +38,40 @@ class SignUpPage extends StatelessWidget {
           body: SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.all(30.0),
-                      child: WhiteLogoImage(),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(30),
-                      margin: const EdgeInsets.all(30),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        color: const Color(0xFFFAFAFA),
+                child: Form(
+                  key: controller.signUpFormKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(30.0),
+                        child: WhiteLogoImage(),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          buildEmailAddressField(controller),
-                          buildPasswordField(controller),
-                          buildPasswordConfirmationField(controller),
-                          const SizedBox(height: 10),
-                          buildAgreementSection(controller, context),
-                          const SizedBox(height: 15),
-                          ElevatedButton(
-                            onPressed: () {},
-                            child: const Text('회원 가입'),
-                          ),
-                        ],
+                      Container(
+                        padding: const EdgeInsets.all(30),
+                        margin: const EdgeInsets.all(30),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          color: const Color(0xFFFAFAFA),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            buildEmailAddressField(controller),
+                            buildPasswordField(controller),
+                            buildPasswordConfirmationField(controller),
+                            const SizedBox(height: 10),
+                            buildAgreementSection(controller, context),
+                            const SizedBox(height: 15),
+                            ElevatedButton(
+                              onPressed: () async => controller.signUp(),
+                              child: const Text('회원 가입'),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -78,50 +81,40 @@ class SignUpPage extends StatelessWidget {
     );
   }
 
-  Obx buildPasswordConfirmationField(SignUpController controller) {
-    return Obx(
-      () => TextField(
-        onChanged: (text) => controller.setPasswordConfirmation(text),
-        keyboardType: TextInputType.text,
-        obscureText: true,
-        enableSuggestions: false,
-        autocorrect: false,
-        decoration: InputDecoration(
-          labelText: '비밀번호 확인',
-          icon: const Icon(Icons.password_outlined),
-          errorText: !controller.passwordAgreementVerificationStarted.value ||
-                  controller.passwordsAgree.value
-              ? null
-              : '비밀번호가 일치하지 않습니다',
-        ),
+  Widget buildPasswordConfirmationField(SignUpController controller) {
+    return TextFormField(
+      controller: controller.passwordConfirmationController,
+      validator: controller.validatePasswordConfirmation,
+      keyboardType: TextInputType.text,
+      obscureText: true,
+      enableSuggestions: false,
+      autocorrect: false,
+      decoration: const InputDecoration(
+        labelText: '비밀번호 확인',
+        icon: Icon(Icons.password_outlined),
       ),
     );
   }
 
-  Focus buildPasswordField(SignUpController controller) {
-    return Focus(
-      onFocusChange: (hasFocus) {
-        if (!hasFocus) {
-          controller.startPasswordAgreementVerification();
-        }
-      },
-      child: TextField(
-        onChanged: (text) => controller.setPassword(text),
-        keyboardType: TextInputType.text,
-        obscureText: true,
-        enableSuggestions: false,
-        autocorrect: false,
-        decoration: const InputDecoration(
-          labelText: '비밀번호',
-          icon: Icon(Icons.password_outlined),
-        ),
+  Widget buildPasswordField(SignUpController controller) {
+    return TextFormField(
+      controller: controller.passwordController,
+      validator: controller.validatePassword,
+      keyboardType: TextInputType.text,
+      obscureText: true,
+      enableSuggestions: false,
+      autocorrect: false,
+      decoration: const InputDecoration(
+        labelText: '비밀번호',
+        icon: Icon(Icons.password_outlined),
       ),
     );
   }
 
-  TextField buildEmailAddressField(SignUpController controller) {
-    return TextField(
-      onChanged: (text) => controller.setEmailAddress(text),
+  Widget buildEmailAddressField(SignUpController controller) {
+    return TextFormField(
+      controller: controller.emailAddressController,
+      validator: controller.validateEmailAddress,
       keyboardType: TextInputType.emailAddress,
       enableSuggestions: false,
       decoration: const InputDecoration(
@@ -131,59 +124,82 @@ class SignUpPage extends StatelessWidget {
     );
   }
 
-  Row buildAgreementSection(SignUpController controller, BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.end,
+  Widget buildAgreementSection(
+      SignUpController controller, BuildContext context) {
+    return Column(
       children: [
-        Obx(
-          () => Checkbox(
-            value: controller.agreementChecked.value,
-            onChanged: (bool? value) =>
-                controller.setAgreementChecked(value ?? false),
-          ),
-        ),
-        Flexible(
-          child: RichText(
-            text: TextSpan(
-              style: Theme.of(context).textTheme.bodyText2?.merge(
-                    const TextStyle(
-                      height: 1.2,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Obx(
+              () => Checkbox(
+                value: controller.agreementChecked.value,
+                onChanged: (bool? value) =>
+                    controller.setAgreementChecked(value ?? false),
+              ),
+            ),
+            Flexible(
+              child: Column(
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: Theme.of(context).textTheme.bodyText2?.merge(
+                            const TextStyle(
+                              height: 1.2,
+                            ),
+                          ),
+                      children: [
+                        TextSpan(
+                          text: '이용약관',
+                          style: const TextStyle(
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              launch(
+                                  'https://docs.flutter.io/flutter/services/UrlLauncher-class.html');
+                            },
+                        ),
+                        const TextSpan(
+                          text: ' 및 ',
+                        ),
+                        TextSpan(
+                          text: '개인정보처리방침',
+                          style: const TextStyle(
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              launch(
+                                  'https://docs.flutter.io/flutter/services/UrlLauncher-class.html');
+                            },
+                        ),
+                        const TextSpan(
+                          text: '을 읽었으며 동의합니다.',
+                        ),
+                      ],
                     ),
                   ),
-              children: [
-                TextSpan(
-                  text: '이용약관',
-                  style: const TextStyle(
-                    decoration: TextDecoration.underline,
-                  ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      launch(
-                          'https://docs.flutter.io/flutter/services/UrlLauncher-class.html');
-                    },
-                ),
-                const TextSpan(
-                  text: ' 및 ',
-                ),
-                TextSpan(
-                  text: '개인정보처리방침',
-                  style: const TextStyle(
-                    decoration: TextDecoration.underline,
-                  ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      launch(
-                          'https://docs.flutter.io/flutter/services/UrlLauncher-class.html');
-                    },
-                ),
-                const TextSpan(
-                  text: '을 읽었으며 동의합니다.',
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
+        Obx(() {
+          if (controller.shouldShowAgreementRequiredMessage.isTrue) {
+            return const Padding(
+              padding: EdgeInsets.only(top: 3),
+              child: Text(
+                '회원 가입을 위해서는 동의가 필요합니다.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red, fontSize: 12),
+              ),
+            );
+          } else {
+            return Container();
+          }
+        })
       ],
     );
   }

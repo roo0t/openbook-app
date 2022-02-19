@@ -22,10 +22,16 @@ class SignInController extends GetxController {
     var result = await Get.find<UserController>()
         .signIn(emailAddress.value, password.value);
 
-    if (result) {
-      Get.offAll(() => const HomePage());
-    } else {
-      shouldShowSignInFailedMessage(true);
+    switch (result) {
+      case SignInResult.authenticated:
+        Get.offAll(() => const HomePage());
+        break;
+      case SignInResult.badCredentials:
+        shouldShowSignInFailedMessage(true);
+        break;
+      case SignInResult.unknownError:
+        // TODO: Handle this case.
+        break;
     }
   }
 }
