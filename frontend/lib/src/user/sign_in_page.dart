@@ -3,7 +3,10 @@ import 'package:get/get.dart';
 import 'package:openbook/src/user/sign_in_controller.dart';
 import 'package:openbook/src/user/sign_up_page.dart';
 
+import '../home_page.dart';
+import '../wait_dialog.dart';
 import '../white_logo_image.dart';
+import 'user_controller.dart';
 
 class SignInPage extends StatelessWidget {
   const SignInPage({Key? key}) : super(key: key);
@@ -50,7 +53,7 @@ class SignInPage extends StatelessWidget {
                           const SizedBox(height: 15),
                           buildSignInFailedMessage(controller),
                           const SizedBox(height: 15),
-                          buildSignInButton(controller),
+                          buildSignInButton(context, controller),
                           const SizedBox(height: 5),
                           buildForgotPasswordButton(context),
                         ],
@@ -70,10 +73,10 @@ class SignInPage extends StatelessWidget {
   Obx buildSignInFailedMessage(SignInController controller) {
     return Obx(() {
       if (controller.shouldShowSignInFailedMessage.value) {
-        return const Text(
+        return Text(
           '로그인에 실패했습니다.',
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.red),
+          style: TextStyle(color: Colors.red.shade800),
         );
       } else {
         return Container();
@@ -103,9 +106,21 @@ class SignInPage extends StatelessWidget {
     );
   }
 
-  ElevatedButton buildSignInButton(controller) {
+  ElevatedButton buildSignInButton(context, controller) {
     return ElevatedButton(
-      onPressed: () async => await controller.signIn(),
+      onPressed: () async {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) => const WaitDialog(),
+        );
+        var result = await controller.signIn();
+        Navigator.pop(context); // Hide loading dialog
+
+        if (result == SignInResult.authenticated) {
+          Get.offAll(() => const HomePage());
+        }
+      },
       child: const Text('로그인'),
     );
   }

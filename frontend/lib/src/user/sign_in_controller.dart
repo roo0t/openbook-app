@@ -18,20 +18,12 @@ class SignInController extends GetxController {
     shouldShowSignInFailedMessage(false);
   }
 
-  signIn() async {
+  Future<SignInResult?> signIn() async {
     var result = await Get.find<UserController>()
         .signIn(emailAddress.value, password.value);
-
-    switch (result) {
-      case SignInResult.authenticated:
-        Get.offAll(() => const HomePage());
-        break;
-      case SignInResult.badCredentials:
-        shouldShowSignInFailedMessage(true);
-        break;
-      case SignInResult.unknownError:
-        // TODO: Handle this case.
-        break;
+    if (result == SignInResult.badCredentials) {
+      shouldShowSignInFailedMessage(true);
     }
+    return result;
   }
 }
