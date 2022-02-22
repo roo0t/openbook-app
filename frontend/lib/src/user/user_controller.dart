@@ -31,10 +31,15 @@ class UserController extends GetxController {
   }
 
   Future<SignInResult> signIn(String emailAddress, String password) async {
-    final response = await http.post(BackendUris.SIGN_IN, body: {
-      "emailAddress": emailAddress,
-      "password": password,
-    });
+    final response = await http.post(BackendUris.SIGN_IN,
+        body: jsonEncode({
+          "emailAddress": emailAddress,
+          "password": password,
+        }),
+        headers: {
+          'Content-type': 'application/json',
+          'Accept': 'application/json',
+        });
     SignInResult result = SignInResult.authenticated;
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
