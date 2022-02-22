@@ -4,7 +4,10 @@ import 'package:get/get.dart';
 import 'package:openbook/src/user/sign_up_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../home_page.dart';
+import '../wait_dialog.dart';
 import '../white_logo_image.dart';
+import 'user_controller.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -64,7 +67,22 @@ class SignUpPage extends StatelessWidget {
                             buildAgreementSection(controller, context),
                             const SizedBox(height: 15),
                             ElevatedButton(
-                              onPressed: () async => controller.signUp(),
+                              onPressed: () async {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) =>
+                                      const WaitDialog(),
+                                );
+                                var result = await controller.signUp();
+                                Navigator.pop(context); // Hide loading dialog
+                                if (result == SignUpResult.successful) {
+                                  Get.offAll(() => const HomePage());
+                                } else if (result ==
+                                    SignUpResult.unknownError) {
+                                  Get.snackbar('실패', '알 수 없는 오류가 발생하였습니다.');
+                                }
+                              },
                               child: const Text('회원 가입'),
                             ),
                           ],
@@ -188,12 +206,12 @@ class SignUpPage extends StatelessWidget {
         ),
         Obx(() {
           if (controller.shouldShowAgreementRequiredMessage.isTrue) {
-            return const Padding(
-              padding: EdgeInsets.only(top: 3),
+            return Padding(
+              padding: const EdgeInsets.only(top: 3),
               child: Text(
                 '회원 가입을 위해서는 동의가 필요합니다.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.red, fontSize: 12),
+                style: TextStyle(color: Colors.red.shade800, fontSize: 12),
               ),
             );
           } else {

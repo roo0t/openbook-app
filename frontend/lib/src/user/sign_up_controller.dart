@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../home_page.dart';
 import 'user_controller.dart';
 
 class SignUpController extends GetxController {
@@ -71,26 +70,20 @@ class SignUpController extends GetxController {
     return agreementChecked.isTrue;
   }
 
-  signUp() async {
+  Future<SignUpResult?> signUp() async {
     shouldShowDuplicateEmailAddressMessage(false);
     final bool? formValidationResult = signUpFormKey.currentState?.validate();
     final bool agreementValidationResult = validateAgreementChecked();
     if (formValidationResult == true && agreementValidationResult) {
       var result = await Get.find<UserController>()
           .signUp(emailAddressController.text, password.value);
-
-      switch (result) {
-        case SignUpResult.successful:
-          Get.offAll(() => const HomePage());
-          break;
-        case SignUpResult.duplicateUsername:
-          shouldShowDuplicateEmailAddressMessage(true);
-          signUpFormKey.currentState?.validate();
-          break;
-        case SignUpResult.unknownError:
-          Get.snackbar('실패', '알 수 없는 오류가 발생하였습니다.');
-          break;
+      if (result == SignUpResult.duplicateUsername) {
+        shouldShowDuplicateEmailAddressMessage(true);
+        signUpFormKey.currentState?.validate();
       }
+      return result;
+    } else {
+      return null;
     }
   }
 }
