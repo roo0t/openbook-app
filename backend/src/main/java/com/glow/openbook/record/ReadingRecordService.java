@@ -1,7 +1,6 @@
 package com.glow.openbook.record;
 
 import com.glow.openbook.book.Book;
-import com.glow.openbook.book.BookService;
 import com.glow.openbook.member.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,8 +12,6 @@ import java.util.List;
 public class ReadingRecordService {
 
     private final ReadingRecordRepository readingRecordRepository;
-
-    private final BookService bookService;
 
     public List<ReadingRecord> getReadingRecords(Member member, String bookIsbn) {
         return readingRecordRepository.findByMemberAndBookIsbn(member, bookIsbn);

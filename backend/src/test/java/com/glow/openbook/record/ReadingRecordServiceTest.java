@@ -1,7 +1,7 @@
 package com.glow.openbook.record;
 
 import com.glow.openbook.book.Book;
-import com.glow.openbook.book.BookService;
+import com.glow.openbook.book.IsbnLookupService;
 import com.glow.openbook.member.MemberAlreadyExistsException;
 import com.glow.openbook.member.MemberService;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +23,7 @@ public class ReadingRecordServiceTest {
     private MemberService memberService;
 
     @Autowired
-    private BookService bookService;
+    private IsbnLookupService isbnLookupService;
 
     @Autowired
     private ReadingRecordRepository readingRecordRepository;
@@ -40,7 +40,7 @@ public class ReadingRecordServiceTest {
         var member = memberService.getMember("test@example.com").get();
         var isbn = "9788998439798";
         var page = 108;
-        Optional<Book> book = bookService.getBookByIsbn(isbn);
+        Optional<Book> book = isbnLookupService.getBookByIsbn(isbn);
         assertThat(book.isPresent()).isTrue();
 
         readingRecordService.createReadingRecord(
