@@ -1,5 +1,6 @@
 package com.glow.openbook.book;
 
+import com.glow.openbook.book.aladin.AladinBookSearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ public class BookService {
     private final AladinBookSearchService aladinBookSearchService;
 
     public Optional<Book> getBookByIsbn(final String isbn) {
-        return aladinBookSearchService.lookUpBook(isbn);
+        return aladinBookSearchService.getBookByIsbn(isbn);
     }
 
     public List<Book> searchBooks(final String query) {

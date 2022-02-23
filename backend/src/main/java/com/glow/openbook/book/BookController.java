@@ -11,11 +11,12 @@ import java.util.Optional;
 @RequestMapping("book")
 @RequiredArgsConstructor
 public class BookController {
-    private final BookService bookService;
+    private final BookSearchService bookSearchService;
+    private final IsbnLookupService isbnLookupService;
 
     @GetMapping("/{isbn}")
     public ApiResponse<Book> getBookByIsbn(@PathVariable("isbn") String isbn) {
-        Optional<Book> book = bookService.getBookByIsbn(isbn);
+        Optional<Book> book = isbnLookupService.getBookByIsbn(isbn);
         if (book.isPresent()) {
             return ApiResponse.successfulResponse(book.get());
         } else {
@@ -25,7 +26,7 @@ public class BookController {
 
     @GetMapping({"", "/"})
     public ApiResponse<List<Book>> searchBooks(@RequestParam("query") String query) {
-        List<Book> searchResult = bookService.searchBooks(query);
+        List<Book> searchResult = bookSearchService.search(query);
         return ApiResponse.successfulResponse(searchResult);
     }
 }

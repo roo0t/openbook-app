@@ -1,4 +1,4 @@
-package com.glow.openbook.book;
+package com.glow.openbook.book.aladin;
 
 import lombok.Getter;
 

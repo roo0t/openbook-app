@@ -1,6 +1,9 @@
-package com.glow.openbook.book;
+package com.glow.openbook.book.aladin;
 
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -33,6 +36,8 @@ import java.util.List;
  */
 
 @Getter
+@Data
+@NoArgsConstructor
 public class AladinApiResponse<ItemType> {
     private String version;
     private String logo;

@@ -1,5 +1,9 @@
-package com.glow.openbook.book;
+package com.glow.openbook.book.aladin;
 
+import com.glow.openbook.book.Book;
+import com.glow.openbook.book.BookRepository;
+import com.glow.openbook.book.BookSearchService;
+import com.glow.openbook.book.IsbnLookupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -8,22 +12,23 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class AladinBookSearchService {
+public class AladinBookSearchService implements BookSearchService, IsbnLookupService {
     @Value("${aladin-ttb-key}")
     private String aladinTtbKey;
 
     private final BookRepository bookRepository;
 
+    private final RestTemplate restTemplate;
+
     public List<Book> search(final String query) {
         final List<String> isbns = searchOnAladin(query);
         return isbns.stream()
-                .map((isbn) -> lookUpBook(isbn))
+                .map((isbn) -> getBookByIsbn(isbn))
                 .filter((book) -> book.isPresent())
                 .map((book) -> book.get()).toList();
     }
@@ -39,7 +44,6 @@ public class AladinBookSearchService {
                 .queryParam("TTBKey", aladinTtbKey)
                 .queryParam("Query", query)
                 .build();
-        RestTemplate restTemplate = new RestTemplate();
         final AladinBookSearchResult result =
                 restTemplate.getForObject(uriComponents.toUriString(), AladinBookSearchResult.class);
         if (result.getItem() == null) {
@@ -49,7 +53,7 @@ public class AladinBookSearchService {
         }
     }
 
-    public Optional<Book> lookUpBook(final String isbn) {
+    public Optional<Book> getBookByIsbn(final String isbn) {
         Optional<Book> book = bookRepository.findById(isbn);
         if (book.isPresent()) {
             return book;
@@ -74,7 +78,6 @@ public class AladinBookSearchService {
                 .queryParam("ItemIdType", "ISBN13")
                 .queryParam("ItemId", isbn)
                 .build();
-        RestTemplate restTemplate = new RestTemplate();
         final AladinBookLookUpResult result =
                 restTemplate.getForObject(uriComponents.toUriString(), AladinBookLookUpResult.class);
         if (result.getItem() != null && !result.getItem().isEmpty()) {

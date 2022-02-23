@@ -1,5 +1,6 @@
-package com.glow.openbook.book;
+package com.glow.openbook.book.aladin;
 
+import lombok.Builder;
 import lombok.Getter;
 
 /* Example json:
@@ -29,6 +30,7 @@ import lombok.Getter;
     },
  */
 @Getter
+@Builder
 public class AladinBookSearchResultEntry {
     private String title;
     private String link;

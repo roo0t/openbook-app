@@ -1,6 +1,19 @@
-package com.glow.openbook.book;
+package com.glow.openbook.book.aladin;
 
-/* Example:
+/* Sample output:
+{
+  "version": "20131101",
+  "logo": "http://image.aladin.co.kr/img/header/2011/aladin_logo_new.gif",
+  "title": "알라딘 상품정보 - 위대한 이야기",
+  "link": "https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=281256147&amp;partner=openAPI",
+  "pubDate": "Sat, 27 Nov 2021 04:25:35 GMT",
+  "totalResults": 1,
+  "startIndex": 1,
+  "itemsPerPage": 1,
+  "query": "isbn13=9791191851069",
+  "searchCategoryId": 0,
+  "searchCategoryName": "",
+  "item": [
     {
       "title": "위대한 이야기 - 아름다움, 선함, 진리에 대한 메타 내러티브",
       "link": "http://www.aladin.co.kr/shop/wproduct.aspx?ItemId=281256147&amp;partner=openAPI&amp;start=api",
@@ -49,32 +62,9 @@ package com.glow.openbook.book;
         "itemPage": 304
       }
     }
+  ]
+}
  */
 
-import lombok.Getter;
-
-@Getter
-public class AladinBookLookUpResultEntry {
-    private String title;
-    private String link;
-    private String author;
-    private String pubDate;
-    private String description;
-    private String isbn;
-    private String isbn13;
-    private String itemId;
-    private int priceSales;
-    private int priceStandard;
-    private String mallType;
-    private String stockStatus;
-    private int mileage;
-    private String cover;
-    private String categoryId;
-    private String categoryName;
-    private String publisher;
-    private int salesPoint;
-    private boolean adult;
-    private boolean fixedPrice;
-    private int customerReviewRank;
-    private AladinBookLookUpResultEntrySubInfo subInfo;
+public class AladinBookLookUpResult extends AladinApiResponse<AladinBookLookUpResultEntry> {
 }
