@@ -40,10 +40,10 @@ class UserController extends GetxController {
           'Content-type': 'application/json',
           'Accept': 'application/json',
         });
-    SignInResult result = SignInResult.authenticated;
+    SignInResult result = SignInResult.unknownError;
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-      if (responseBody["statusMessage"] == "OK") {
+      if (responseBody["statusMessage"] == "SUCCESS") {
         final String token = responseBody["data"]["token"] as String;
         _authBox.write('token', token);
         isSignedIn = true;

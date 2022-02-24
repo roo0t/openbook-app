@@ -1,8 +1,6 @@
 import 'package:get/get.dart';
 import 'package:openbook/src/user/user_controller.dart';
 
-import '../home_page.dart';
-
 class SignInController extends GetxController {
   RxString emailAddress = "".obs;
   RxString password = "".obs;
