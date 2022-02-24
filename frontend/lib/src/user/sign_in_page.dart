@@ -119,6 +119,12 @@ class SignInPage extends StatelessWidget {
 
         if (result == SignInResult.authenticated) {
           Get.offAll(() => const HomePage());
+        } else if (result == SignInResult.unknownError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('알 수 없는 오류가 발생하였습니다.'),
+            ),
+          );
         }
       },
       child: const Text('로그인'),
