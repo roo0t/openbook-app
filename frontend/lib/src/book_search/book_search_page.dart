@@ -75,22 +75,33 @@ class BookSearchPage extends StatelessWidget {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  padding: const EdgeInsets.all(8.0),
+                  child: Wrap(
+                    clipBehavior: Clip.hardEdge,
                     children: [
-                      Text(
-                        book.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            book.title,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            book.authors.map((authoring) {
+                              if (authoring.role == null) {
+                                return authoring.name;
+                              } else {
+                                return '${authoring.name} (${authoring.role})';
+                              }
+                            }).join(', '),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(book.publisher),
+                        ],
                       ),
-                      Text(book.authors.map((authoring) {
-                        if (authoring.role == null) {
-                          return authoring.name;
-                        } else {
-                          return '${authoring.name} (${authoring.role})';
-                        }
-                      }).join(', ')),
-                      Text(book.publisher),
                     ],
                   ),
                 ),
