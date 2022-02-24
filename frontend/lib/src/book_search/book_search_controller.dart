@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:openbook/src/book/book_vo.dart';
+import 'package:openbook/src/user/user_controller.dart';
 
 class BookSearchController extends GetxController {
   RxString searchText = "".obs;
@@ -28,13 +29,22 @@ class BookSearchController extends GetxController {
   }
 
   Future<List<BookVo>?> _search(searchText) async {
-    var response = await http.get(
-      Uri.http(
-        'localhost:8080',
-        '/book',
-        {'query': searchText},
-      ),
-    );
+    http.Response? response;
+    try {
+      response = await http.get(
+        Uri.http(
+          'localhost:8080',
+          '/book',
+          {'query': searchText},
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-AUTH-TOKEN': Get.find<UserController>().token!
+        },
+      );
+    } catch (e) {
+      return null;
+    }
     if (response.statusCode == 200) {
       var responseJson = json.decode(utf8.decode(response.bodyBytes));
       if (responseJson['statusMessage'] == 'SUCCESS') {
