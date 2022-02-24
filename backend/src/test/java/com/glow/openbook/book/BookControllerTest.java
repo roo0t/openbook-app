@@ -1,40 +1,47 @@
 package com.glow.openbook.book;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
+import com.glow.openbook.book.aladin.AladinBookSearchService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
+import static org.hamcrest.Matchers.array;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 @SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class BookControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
     private BookController bookController;
 
-    @Autowired
-    private BookRepository bookRepository;
+    @MockBean
+    private AladinBookSearchService aladinBookSearchService;
 
-    private List<Book> books;
-
-    @BeforeEach
-    public void setUp() {
+    private static List<Book> getBookData() {
         Book testBook1 = Book.builder()
                 .isbn("9788972979616")
                 .title("난치의 상상력 - 질병과 장애, 그 경계를 살아가는 청년의 한국 사회 관찰기")
@@ -56,8 +63,15 @@ class BookControllerTest {
         testBook2.addAuthor("로버트 C. 마틴", "지은이");
         testBook2.addAuthor("송준이", "옮긴이");
 
-        books = Arrays.asList(testBook1, testBook2);
+        return Arrays.asList(testBook1, testBook2);
+    }
 
+    private static Stream<Book> provideBooksForGetBookByIsbn() {
+        return getBookData().stream();
+    }
+
+    @BeforeEach
+    public void setUp() {
         mockMvc = standaloneSetup(bookController)
                 .addFilter(new CharacterEncodingFilter("UTF-8", true))
                 .defaultRequest(get("/book").accept(MediaType.APPLICATION_JSON).characterEncoding("UTF-8"))
@@ -65,39 +79,77 @@ class BookControllerTest {
                 .build();
     }
 
-    @AfterEach
-    public void tearDown() {
-        bookRepository.deleteAll();
+    @ParameterizedTest
+    @MethodSource("provideBooksForGetBookByIsbn")
+    public void getBookByIsbn_valid_isbn_respond_with_book_data(Book targetBook) throws Exception {
+        // Arrange
+        final var books = getBookData();
+        for(var book : books) {
+            when(aladinBookSearchService.getBookByIsbn(book.getIsbn())).thenReturn(Optional.of(book));
+        }
+
+        // Action
+        final ResultActions actionResult = mockMvc.perform(
+                get(String.format("/book/%s", targetBook.getIsbn())).contentType(MediaType.APPLICATION_JSON));
+
+        // Assert
+        verify(aladinBookSearchService, times(1)).getBookByIsbn(targetBook.getIsbn());
+        verifyNoMoreInteractions(aladinBookSearchService);
+        actionResult
+                .andExpect(jsonPath("$.statusMessage", is("SUCCESS")))
+                .andExpect(jsonPath("$.data.isbn", is(targetBook.getIsbn())))
+                .andExpect(jsonPath("$.data.title", is(targetBook.getTitle())))
+                .andExpect(jsonPath("$.data.authors", hasSize(targetBook.getAuthors().size())))
+                .andExpect(jsonPath("$.data.publisher", is(targetBook.getPublisher())))
+                .andExpect(jsonPath("$.data.description", is(targetBook.getDescription())))
+                .andExpect(jsonPath("$.data.coverImageUrl", is(targetBook.getCoverImageUrl())))
+                .andExpect(jsonPath("$.data.tags", is(targetBook.getTags())))
+        ;
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"invalidisbn", ".", "1", "97889729796160"})
+    public void getBookByIsbn_invalid_isbn_respond_with_NOT_FOUND(String invalidIsbn) throws Exception {
+        // Arrange
+        final var books = getBookData();
+        for(var book : books) {
+            when(aladinBookSearchService.getBookByIsbn(book.getIsbn())).thenReturn(Optional.of(book));
+        }
+
+        // Action
+        final ResultActions actionResult = mockMvc.perform(
+                get("/book/" + invalidIsbn).contentType(MediaType.APPLICATION_JSON));
+
+        // Assert
+        verify(aladinBookSearchService, times(1)).getBookByIsbn(invalidIsbn);
+        actionResult.andExpect(jsonPath("$.statusMessage", is("NOT_FOUND")));
     }
 
     @Test
-    public void getBookByIsbn() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public void searchBooks_respond_with_search_result() throws Exception {
+        // Arrange
+        final String query = "위대한 이야기";
+        final var bookData = getBookData();
+        when(aladinBookSearchService.search(query)).thenReturn(bookData);
 
-        for (int i = 0; i < books.size(); i++) {
-            mockMvc.perform(get(String.format("/book/%s", books.get(i).getIsbn())).contentType(MediaType.APPLICATION_JSON))
-                   .andExpect(jsonPath("$.statusMessage", is("SUCCESS")))
-                   .andExpect(jsonPath("$.data.isbn", is(books.get(i).getIsbn())))
-                   .andExpect(jsonPath("$.data.title", is(books.get(i).getTitle())))
-                   .andExpect(jsonPath("$.data.authors", hasSize(books.get(i).getAuthors().size())))
-                   .andExpect(jsonPath("$.data.publisher", is(books.get(i).getPublisher())))
-                   .andExpect(jsonPath("$.data.description", is(books.get(i).getDescription())))
-                   .andExpect(jsonPath("$.data.coverImageUrl", is(books.get(i).getCoverImageUrl())))
-                   .andExpect(jsonPath("$.data.tags", is(books.get(i).getTags())))
+        // Action
+        final ResultActions actionResult = mockMvc.perform(
+                get("/book?query=" + query).contentType(MediaType.APPLICATION_JSON));
+
+        // Assert
+        verify(aladinBookSearchService, times(1)).search(query);
+        actionResult
+                .andExpect(jsonPath("$.statusMessage", is("SUCCESS")))
+                .andExpect(jsonPath("$.data", hasSize(bookData.size())));
+        for(int i = 0; i < bookData.size(); i++) {
+            actionResult
+                .andExpect(jsonPath(String.format("$.data[%d].isbn", i), is(bookData.get(i).getIsbn())))
+                .andExpect(jsonPath(String.format("$.data[%d].title", i), is(bookData.get(i).getTitle())))
+                .andExpect(jsonPath(String.format("$.data[%d].publisher", i), is(bookData.get(i).getPublisher())))
+                .andExpect(jsonPath(String.format("$.data[%d].description", i), is(bookData.get(i).getDescription())))
+                .andExpect(jsonPath(String.format("$.data[%d].authors", i), hasSize(bookData.get(i).getAuthors().size())))
             ;
         }
-    }
 
-    @Test
-    public void getBookByInvalidIsbn() throws Exception {
-        mockMvc.perform(get("/book/invalidisbn").contentType(MediaType.APPLICATION_JSON))
-               .andExpect(jsonPath("$.statusMessage", is("NOT_FOUND")));
-    }
-
-    @Test
-    public void searchBooks() throws Exception {
-        mockMvc.perform(get("/book?query=위대한 이야기").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.statusMessage", is("SUCCESS")))
-                .andExpect(jsonPath("$.data[0].title", is("위대한 이야기 - 아름다움, 선함, 진리에 대한 메타 내러티브")));
     }
 }
