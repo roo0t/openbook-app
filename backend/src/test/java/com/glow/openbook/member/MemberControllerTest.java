@@ -106,11 +106,11 @@ public class MemberControllerTest {
         // Assert
         final var signInResult = signInResultActions
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.data.username", Matchers.is(request.getEmailAddress())))
-                .andExpect(jsonPath("$.data.authorities", Matchers.hasSize(1)))
-                .andExpect(jsonPath("$.data.authorities[0].authority", Matchers.is("ROLE_MEMBER")))
+                .andExpect(jsonPath("$.username", Matchers.is(request.getEmailAddress())))
+                .andExpect(jsonPath("$.authorities", Matchers.hasSize(1)))
+                .andExpect(jsonPath("$.authorities[0].authority", Matchers.is("ROLE_MEMBER")))
                 .andReturn();
-        final String token = JsonPath.read(signInResult.getResponse().getContentAsString(), "$.data.token");
+        final String token = JsonPath.read(signInResult.getResponse().getContentAsString(), "$.token");
         assertThat(token).isEqualTo(mockToken);
     }
 
@@ -119,7 +119,6 @@ public class MemberControllerTest {
         // Arrange
         final String emailAddress = "test@glowingreaders.club";
         final String password = "password";
-        final String nickname = "nickname";
         SignUpRequest request = SignUpRequest.builder()
                 .emailAddress(emailAddress).password(password).build();
         String requestString = objectMapper.writeValueAsString(request);
@@ -139,9 +138,9 @@ public class MemberControllerTest {
         actionResult
                 .andDo(print())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.data.username", Matchers.is(request.getEmailAddress())))
-                .andExpect(jsonPath("$.data.authorities", Matchers.hasSize(2)))
-                .andExpect(jsonPath("$.data.authorities[0].authority", Matchers.is("ROLE_1")))
-                .andExpect(jsonPath("$.data.authorities[1].authority", Matchers.is("ROLE_2")));
+                .andExpect(jsonPath("$.username", Matchers.is(request.getEmailAddress())))
+                .andExpect(jsonPath("$.authorities", Matchers.hasSize(2)))
+                .andExpect(jsonPath("$.authorities[0].authority", Matchers.is("ROLE_1")))
+                .andExpect(jsonPath("$.authorities[1].authority", Matchers.is("ROLE_2")));
     }
 }
