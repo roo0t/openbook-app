@@ -101,7 +101,10 @@ class BookDetailPage extends StatelessWidget {
     return SliverToBoxAdapter(
       child: Column(
         children: [
-          Text(book.authors.join(', ') + " 지음"),
+          Text(book.authors.map((authoring) {
+            return authoring.name +
+                (authoring.role == null ? "" : "(${authoring.role})");
+          }).join(', ')),
           Text('${book.publisher} (${book.publishedOn})'),
           SizedBox(
             child: Padding(
