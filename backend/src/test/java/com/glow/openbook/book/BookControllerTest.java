@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -26,6 +27,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
@@ -75,7 +77,6 @@ class BookControllerTest {
         mockMvc = standaloneSetup(bookController)
                 .addFilter(new CharacterEncodingFilter("UTF-8", true))
                 .defaultRequest(get("/book").accept(MediaType.APPLICATION_JSON).characterEncoding("UTF-8"))
-                .alwaysExpect(status().isOk())
                 .build();
     }
 
@@ -96,14 +97,16 @@ class BookControllerTest {
         verify(aladinBookSearchService, times(1)).getBookByIsbn(targetBook.getIsbn());
         verifyNoMoreInteractions(aladinBookSearchService);
         actionResult
-                .andExpect(jsonPath("$.statusMessage", is("SUCCESS")))
-                .andExpect(jsonPath("$.data.isbn", is(targetBook.getIsbn())))
-                .andExpect(jsonPath("$.data.title", is(targetBook.getTitle())))
-                .andExpect(jsonPath("$.data.authors", hasSize(targetBook.getAuthors().size())))
-                .andExpect(jsonPath("$.data.publisher", is(targetBook.getPublisher())))
-                .andExpect(jsonPath("$.data.description", is(targetBook.getDescription())))
-                .andExpect(jsonPath("$.data.coverImageUrl", is(targetBook.getCoverImageUrl())))
-                .andExpect(jsonPath("$.data.tags", is(targetBook.getTags())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isbn", is(targetBook.getIsbn())))
+                .andExpect(jsonPath("$.title", is(targetBook.getTitle())))
+                .andExpect(jsonPath("$.authors", hasSize(targetBook.getAuthors().size())))
+                .andExpect(jsonPath("$.publisher", is(targetBook.getPublisher())))
+                .andExpect(jsonPath("$.description", is(targetBook.getDescription())))
+                .andExpect(jsonPath("$.coverImageUrl", is(targetBook.getCoverImageUrl())))
+                .andExpect(jsonPath("$.tags", is(targetBook.getTags())))
+                .andExpect(jsonPath("$.links", hasSize(1)))
+                .andExpect(jsonPath("$.links[0].rel", is("self")))
         ;
     }
 
@@ -122,7 +125,7 @@ class BookControllerTest {
 
         // Assert
         verify(aladinBookSearchService, times(1)).getBookByIsbn(invalidIsbn);
-        actionResult.andExpect(jsonPath("$.statusMessage", is("NOT_FOUND")));
+        actionResult.andExpect(status().isNotFound());
     }
 
     @Test
@@ -139,15 +142,16 @@ class BookControllerTest {
         // Assert
         verify(aladinBookSearchService, times(1)).search(query);
         actionResult
-                .andExpect(jsonPath("$.statusMessage", is("SUCCESS")))
-                .andExpect(jsonPath("$.data", hasSize(bookData.size())));
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.content", hasSize(bookData.size())));
         for(int i = 0; i < bookData.size(); i++) {
             actionResult
-                .andExpect(jsonPath(String.format("$.data[%d].isbn", i), is(bookData.get(i).getIsbn())))
-                .andExpect(jsonPath(String.format("$.data[%d].title", i), is(bookData.get(i).getTitle())))
-                .andExpect(jsonPath(String.format("$.data[%d].publisher", i), is(bookData.get(i).getPublisher())))
-                .andExpect(jsonPath(String.format("$.data[%d].description", i), is(bookData.get(i).getDescription())))
-                .andExpect(jsonPath(String.format("$.data[%d].authors", i), hasSize(bookData.get(i).getAuthors().size())))
+                .andExpect(jsonPath(String.format("$.content[%d].isbn", i), is(bookData.get(i).getIsbn())))
+                .andExpect(jsonPath(String.format("$.content[%d].title", i), is(bookData.get(i).getTitle())))
+                .andExpect(jsonPath(String.format("$.content[%d].publisher", i), is(bookData.get(i).getPublisher())))
+                .andExpect(jsonPath(String.format("$.content[%d].description", i), is(bookData.get(i).getDescription())))
+                .andExpect(jsonPath(String.format("$.content[%d].authors", i), hasSize(bookData.get(i).getAuthors().size())))
             ;
         }
 

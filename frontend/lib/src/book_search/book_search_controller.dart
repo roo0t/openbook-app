@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -45,17 +46,17 @@ class BookSearchController extends GetxController {
     } catch (e) {
       return null;
     }
-    if (response.statusCode == 200) {
+    if (response.statusCode == HttpStatus.ok) {
       var responseJson = json.decode(utf8.decode(response.bodyBytes));
-      if (responseJson['statusMessage'] == 'SUCCESS') {
-        return responseJson['data']
-            .map<BookVo>(
-              (bookJson) => BookVo.fromJson(bookJson),
-            )
-            .toList();
+      if (responseJson['_embedded'] != null) {
+        return responseJson['_embedded']['bookList'].map<BookVo>((book) {
+          return BookVo.fromJson(book);
+        }).toList();
       } else {
-        return null;
+        return List.empty();
       }
+    } else if (response.statusCode == HttpStatus.forbidden) {
+      Get.find<UserController>().signOut();
     } else {
       return null;
     }
