@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:openbook/src/book/book_vo.dart';
 import 'package:openbook/src/user/user_controller.dart';
 
+import '../backend_uris.dart';
+
 class BookSearchController extends GetxController {
   RxString searchText = "".obs;
   RxList<BookVo> searchResults = RxList<BookVo>();
@@ -33,11 +35,7 @@ class BookSearchController extends GetxController {
     http.Response? response;
     try {
       response = await http.get(
-        Uri.http(
-          'localhost:8080',
-          '/book',
-          {'query': searchText},
-        ),
+        BackendUris.BOOK_SEARCH.replace(queryParameters: {'query': searchText}),
         headers: {
           'Content-Type': 'application/json',
           'X-AUTH-TOKEN': Get.find<UserController>().token!
