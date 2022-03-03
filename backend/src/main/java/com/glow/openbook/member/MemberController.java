@@ -10,6 +10,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.stream.Collectors;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -57,7 +59,7 @@ public class MemberController {
     private AuthenticationToken makeAuthenticationToken(UserDetails userDetails) {
         String accessToken = jwtProvider.createToken(
                 userDetails.getUsername(),
-                userDetails.getAuthorities().stream().map((auth) -> auth.getAuthority()).toList());
+                userDetails.getAuthorities().stream().map((auth) -> auth.getAuthority()).collect(Collectors.toList()));
         AuthenticationToken token = new AuthenticationToken(
                 userDetails.getUsername(),
                 userDetails.getAuthorities(),

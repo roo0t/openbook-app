@@ -11,6 +11,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -51,7 +52,7 @@ public class ReadingGroupControllerTest {
         );
         readingGroups = readingGroupVos.stream()
                 .map(vo -> readingGroupService.addGroup(vo))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Test

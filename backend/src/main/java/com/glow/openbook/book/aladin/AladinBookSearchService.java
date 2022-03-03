@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class AladinBookSearchService implements BookSearchService, IsbnLookupSer
         return isbns.stream()
                 .map((isbn) -> getBookByIsbn(isbn))
                 .filter((book) -> book.isPresent())
-                .map((book) -> book.get()).toList();
+                .map((book) -> book.get()).collect(Collectors.toList());
     }
 
     private List<String> searchOnAladin(final String query) {
@@ -49,7 +50,7 @@ public class AladinBookSearchService implements BookSearchService, IsbnLookupSer
         if (result.getItem() == null) {
             return new ArrayList<String>();
         } else {
-            return result.getItem().stream().map((entry) -> entry.getIsbn13()).toList();
+            return result.getItem().stream().map((entry) -> entry.getIsbn13()).collect(Collectors.toList());
         }
     }
 
