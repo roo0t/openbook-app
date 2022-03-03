@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:openbook/src/book/book_vo.dart';
+import 'package:openbook/src/user/sign_in_page.dart';
 import 'package:openbook/src/user/user_controller.dart';
 
 import '../backend_uris.dart';
@@ -55,6 +56,7 @@ class BookSearchController extends GetxController {
       }
     } else if (response.statusCode == HttpStatus.forbidden) {
       Get.find<UserController>().signOut();
+      Get.offAll(() => const SignInPage());
     } else {
       return null;
     }
