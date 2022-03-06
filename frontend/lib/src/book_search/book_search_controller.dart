@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:openbook/src/book/book_detail_page.dart';
 import 'package:openbook/src/book/book_vo.dart';
 import 'package:openbook/src/user/sign_in_page.dart';
 import 'package:openbook/src/user/user_controller.dart';
@@ -30,6 +31,13 @@ class BookSearchController extends GetxController {
 
   void search(text) {
     searchText(text);
+  }
+
+  void searchIsbn(isbn) async {
+    final books = await _search(isbn);
+    if (books != null && books.isNotEmpty) {
+      Get.to(() => BookDetailPage(book: books[0]));
+    }
   }
 
   Future<List<BookVo>?> _search(searchText) async {

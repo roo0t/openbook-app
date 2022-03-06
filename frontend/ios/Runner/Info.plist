@@ -43,5 +43,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>바코드를 스캔하여 책을 검색하기 위해 카메라를 사용합니다.</string>
 </dict>
 </plist>

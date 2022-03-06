@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:openbook/src/book/book_detail_page.dart';
 import 'package:openbook/src/book/book_vo.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 
 import 'book_search_controller.dart';
 
@@ -30,17 +31,44 @@ class BookSearchPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextField(
-                keyboardType: TextInputType.text,
-                autofocus: true,
-                decoration: const InputDecoration(
-                    hintText: '책 제목이나 저자, 출판사로 검색하세요',
-                    border: InputBorder.none,
-                    icon: Padding(
-                        padding: EdgeInsets.only(left: 13),
-                        child: Icon(Icons.search))),
-                onChanged: (text) =>
-                    Get.find<BookSearchController>().search(text),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      keyboardType: TextInputType.text,
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                          hintText: '책 제목이나 저자, 출판사로 검색하세요',
+                          border: InputBorder.none,
+                          icon: Padding(
+                              padding: EdgeInsets.only(left: 13),
+                              child: Icon(Icons.search))),
+                      onChanged: (text) =>
+                          Get.find<BookSearchController>().search(text),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: IconButton(
+                      icon: const Icon(Icons.center_focus_weak_outlined),
+                      onPressed: () async {
+                        final scanResult = await BarcodeScanner.scan(
+                          options: const ScanOptions(
+                            strings: {
+                              "cancel": "취소",
+                              "flash_on": "플래시 켜기",
+                              "flash_off": "플래시 끄기",
+                            },
+                          ),
+                        );
+                        if (scanResult.type == ResultType.Barcode) {
+                          final isbn = scanResult.rawContent;
+                          Get.find<BookSearchController>().searchIsbn(isbn);
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
               Expanded(
                 child: Obx(
