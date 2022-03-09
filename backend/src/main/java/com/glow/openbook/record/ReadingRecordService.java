@@ -17,13 +17,14 @@ public class ReadingRecordService {
         return readingRecordRepository.findByMemberAndBookIsbn(member, bookIsbn);
     }
 
-    public void createReadingRecord(Member member, Book book, int startPage, int endPage) {
-        ReadingRecord record = new ReadingRecord();
-        record.setMember(member);
-        record.setBook(book);
-        record.setStartPage(startPage);
-        record.setEndPage(endPage);
-        record.setDeleted(false);
-        readingRecordRepository.save(record);
+    public ReadingRecord createReadingRecord(Member member, Book book, int startPage, int endPage) {
+        ReadingRecord record = ReadingRecord.builder()
+                .member(member)
+                .book(book)
+                .startPage(startPage)
+                .endPage(endPage)
+                .isDeleted(false)
+                .build();
+        return readingRecordRepository.save(record);
     }
 }

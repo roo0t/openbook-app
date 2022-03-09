@@ -14,11 +14,11 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class ReadingRecordServiceTest {
-
     @Autowired
     @InjectMocks
     private ReadingRecordService readingRecordService;
@@ -73,5 +73,32 @@ public class ReadingRecordServiceTest {
         List<ReadingRecord> result = readingRecordService.getReadingRecords(member, isbn);
 
         assertThat(result).isEqualTo(readingRecords);
+    }
+
+    @Test
+    public void createReadingRecord_adds_reading_record_correctly() {
+        var member = Member.builder()
+                .emailAddress("test@glowingreaders.club")
+                .nickname("testuser")
+                .build();
+        var isbn = "9788998439798";
+        Book book = Book.builder()
+                .isbn(isbn)
+                .title("실격당한 자들을 위한 변론")
+                .totalPages(356)
+                .authors(List.of(Authoring.builder().name("김원영").role("지은이").build()))
+                .build();
+        when(readingRecordRepository.save(any())).thenAnswer(invocation -> {
+            ReadingRecord record = invocation.getArgument(0);
+            record.setId(1L);
+            return record;
+        });
+
+        ReadingRecord record = readingRecordService.createReadingRecord(member, book, 1, 50);
+
+        verify(readingRecordRepository, times(1)).save(record);
+        assertThat(record.getMember()).isEqualTo(member);
+        assertThat(record.getBook()).isEqualTo(book);
+        assertThat(record.getId()).isEqualTo(1L);
     }
 }
