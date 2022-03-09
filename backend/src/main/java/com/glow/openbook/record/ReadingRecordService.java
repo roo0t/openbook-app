@@ -17,11 +17,12 @@ public class ReadingRecordService {
         return readingRecordRepository.findByMemberAndBookIsbn(member, bookIsbn);
     }
 
-    public void createReadingRecord(Member member, Book book, int page) {
+    public void createReadingRecord(Member member, Book book, int startPage, int endPage) {
         ReadingRecord record = new ReadingRecord();
         record.setMember(member);
         record.setBook(book);
-        record.setPage(page);
+        record.setStartPage(startPage);
+        record.setEndPage(endPage);
         record.setDeleted(false);
         readingRecordRepository.save(record);
     }

@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.glow.openbook.book.Book;
 import com.glow.openbook.member.Member;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.ZoneId;
@@ -14,6 +13,9 @@ import java.time.ZonedDateTime;
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReadingRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -29,7 +31,11 @@ public class ReadingRecord {
     @JsonBackReference
     private Book book;
 
-    private int page;
+    @Column(nullable = false)
+    private int startPage;
+
+    @Column(nullable = false)
+    private int endPage;
 
     private ZonedDateTime recordedAt;
 
