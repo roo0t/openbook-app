@@ -97,6 +97,7 @@ public class ReadingRecordServiceTest {
         ReadingRecord record = readingRecordService.createReadingRecord(member, book, 1, 50);
 
         verify(readingRecordRepository, times(1)).save(record);
+        verifyNoMoreInteractions(readingRecordRepository);
         assertThat(record.getMember()).isEqualTo(member);
         assertThat(record.getBook()).isEqualTo(book);
         assertThat(record.getId()).isEqualTo(1L);

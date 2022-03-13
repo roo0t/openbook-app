@@ -1,5 +1,7 @@
 package com.glow.openbook.record;
 
+import com.glow.openbook.book.Book;
+import com.glow.openbook.book.IsbnLookupService;
 import com.glow.openbook.member.Member;
 import com.glow.openbook.member.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,11 +9,10 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -26,7 +27,9 @@ public class ReadingRecordController {
     @Autowired
     private MemberService memberService;
 
-    // Get controller for getReadingRecord
+    @Autowired
+    private IsbnLookupService isbnLookupService;
+
     @GetMapping("/{isbn}")
     public ResponseEntity<CollectionModel<EntityModel<ReadingRecord>>> getReadingRecord(@PathVariable("isbn") String isbn) {
         Member currentMember = memberService.getCurrentMember();
@@ -36,5 +39,19 @@ public class ReadingRecordController {
         return ResponseEntity.ok().body(CollectionModel.of(
                 recordEntityModels,
                 linkTo(methodOn(ReadingRecordController.class).getReadingRecord(isbn)).withSelfRel()));
+    }
+
+    @PutMapping("/{isbn}")
+    public ResponseEntity<EntityModel<ReadingRecord>> putReadingRecord(
+            @PathVariable("isbn") String isbn,
+            @RequestBody ReadingRecordPutRequest request) {
+        Member currentMember = memberService.getCurrentMember();
+        Optional<Book> book = isbnLookupService.getBookByIsbn(isbn);
+        if (!book.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        ReadingRecord record = service.createReadingRecord(
+                currentMember, book.get(), request.getStartPage(), request.getEndPage());
+        return ResponseEntity.ok().body(EntityModel.of(record));
     }
 }

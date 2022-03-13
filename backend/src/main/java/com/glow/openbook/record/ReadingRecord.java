@@ -1,6 +1,7 @@
 package com.glow.openbook.record;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.glow.openbook.book.Book;
 import com.glow.openbook.member.Member;
@@ -37,6 +38,7 @@ public class ReadingRecord {
     @Column(nullable = false)
     private int endPage;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
     private ZonedDateTime recordedAt;
 
     @JsonIgnore
