@@ -27,4 +27,8 @@ public class ReadingRecordService {
                 .build();
         return readingRecordRepository.save(record);
     }
+
+    public List<Book> getBooksWithRecord(Member member) {
+        return readingRecordRepository.findBooksByMember(member);
+    }
 }

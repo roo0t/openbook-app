@@ -1,6 +1,7 @@
 package com.glow.openbook.record;
 
 import com.glow.openbook.book.Book;
+import com.glow.openbook.book.BookController;
 import com.glow.openbook.book.IsbnLookupService;
 import com.glow.openbook.member.Member;
 import com.glow.openbook.member.MemberService;
@@ -53,5 +54,17 @@ public class ReadingRecordController {
         ReadingRecord record = service.createReadingRecord(
                 currentMember, book.get(), request.getStartPage(), request.getEndPage());
         return ResponseEntity.ok().body(EntityModel.of(record));
+    }
+
+    @GetMapping("/books")
+    public ResponseEntity<CollectionModel<EntityModel<Book>>> getBooksWithRecord() {
+        Member currentMember = memberService.getCurrentMember();
+        List<Book> books = service.getBooksWithRecord(currentMember);
+        List<EntityModel<Book>> bookEntityModels = books.stream()
+                .map(book -> EntityModel.of(book, linkTo(methodOn(BookController.class).getBookByIsbn(book.getIsbn())).withSelfRel()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().body(CollectionModel.of(
+                bookEntityModels,
+                linkTo(methodOn(ReadingRecordController.class).getBooksWithRecord()).withSelfRel()));
     }
 }

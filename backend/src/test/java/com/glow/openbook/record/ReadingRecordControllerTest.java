@@ -63,6 +63,7 @@ class ReadingRecordControllerTest {
 
     @Test
     void getReadingRecords_returns_existing_records_correctly() throws Exception {
+        // Arrange
         Member member = Member.builder().emailAddress("test@glowingreaders.club").nickname("testname").build();
         String isbn = "9784873113685";
         Book book = Book.builder().isbn(isbn).title("아름다운 세계").publisher("에이콘출판사").build();
@@ -73,9 +74,10 @@ class ReadingRecordControllerTest {
         when(service.getReadingRecords(member, isbn)).thenReturn(records);
         String url = "/record/" + isbn;
 
-        final ResultActions resultActions = mockMvc.perform(
-                get(url).contentType(MediaType.APPLICATION_JSON));
+        // Act
+        final ResultActions resultActions = mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
 
+        // Assert
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.links", hasSize(1)))
@@ -92,6 +94,7 @@ class ReadingRecordControllerTest {
 
     @Test
     void putReadingRecords_adds_new_records_correctly() throws Exception {
+        // Arrange
         final String isbn = "9784873113685";
         final Book book = Book.builder().isbn(isbn).title("아름다운 세계").publisher("에이콘출판사").build();
         final int startPage = 100;
@@ -115,9 +118,11 @@ class ReadingRecordControllerTest {
                 });
         String requestString = objectMapper.writeValueAsString(request);
 
+        // Act
         final ResultActions resultActions = mockMvc.perform(
                 put("/record/" + isbn).contentType(MediaType.APPLICATION_JSON).content(requestString));
 
+        // Assert
         verify(service, times(1)).createReadingRecord(member, book, startPage, endPage);
         resultActions
                 .andExpect(status().isOk())
@@ -130,18 +135,47 @@ class ReadingRecordControllerTest {
 
     @Test
     void putReadingRecords_fails_with_nonexistent_isbn() throws Exception {
+        // Arrange
         final String isbn = "9784873113685";
         final Member member = Member.builder().emailAddress("test@glowingreaders.club").nickname("testname").build();
         final ReadingRecordPutRequest request = ReadingRecordPutRequest.builder()
                 .startPage(100).endPage(200).build();
         String requestString = objectMapper.writeValueAsString(request);
 
+        // Act
         when(aladinBookSearchService.getBookByIsbn(any())).thenReturn(Optional.empty());
 
+        // Assert
         final ResultActions resultActions = mockMvc.perform(
                 put("/record/" + isbn).contentType(MediaType.APPLICATION_JSON).content(requestString));
 
         verifyNoInteractions(service);
         resultActions.andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getBooksWithRecord_returns_books_with_records() throws Exception {
+        // Arrange
+        Book book1 = Book.builder().isbn("9780321336254").title("TestBook1").build();
+        Book book2 = Book.builder().isbn("9780321336255").title("TestBook2").build();
+        Member member = Member.builder().emailAddress("member1@example.com").build();
+        List<ReadingRecord> records = List.of(
+                ReadingRecord.builder().member(member).book(book1).startPage(1).endPage(10).build(),
+                ReadingRecord.builder().member(member).book(book1).startPage(11).endPage(20).build(),
+                ReadingRecord.builder().member(member).book(book1).startPage(21).endPage(30).build(),
+                ReadingRecord.builder().member(member).book(book2).startPage(1).endPage(30).build());
+        when(memberService.getCurrentMember()).thenReturn(member);
+        when(service.getBooksWithRecord(member)).thenReturn(List.of(book1, book2));
+
+        // Act
+        final ResultActions resultActions = mockMvc.perform(get("/record/books"));
+
+        // Assert
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].isbn", is(book1.getIsbn())))
+                .andExpect(jsonPath("$.content[0].title", is(book1.getTitle())))
+                .andExpect(jsonPath("$.content[1].isbn", is(book2.getIsbn())))
+                .andExpect(jsonPath("$.content[1].title", is(book2.getTitle())));
     }
 }
