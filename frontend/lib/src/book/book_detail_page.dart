@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../expandable_text_widget.dart';
+import 'reading_record_list_page.dart';
 import 'book_vo.dart';
 import 'note_photo_gallery.dart';
 import 'note_vo.dart';
@@ -44,7 +46,9 @@ class BookDetailPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: () {}, child: const Icon(Icons.create)),
+        onPressed: () {},
+        child: const Icon(Icons.create),
+      ),
     );
   }
 
@@ -206,7 +210,9 @@ class BookDetailPage extends StatelessWidget {
   SliverToBoxAdapter buildRecordSummarySection() {
     return SliverToBoxAdapter(
       child: InkWell(
-        onTap: () {},
+        onTap: () => Get.to(
+          () => ReadingRecordListPage(readingRecordController),
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 14.0,
