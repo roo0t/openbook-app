@@ -31,7 +31,7 @@ public class ReadingRecordController {
     @Autowired
     private IsbnLookupService isbnLookupService;
 
-    @GetMapping("/{isbn}")
+    @GetMapping("/book/{isbn}")
     public ResponseEntity<CollectionModel<EntityModel<ReadingRecord>>> getReadingRecord(@PathVariable("isbn") String isbn) {
         Member currentMember = memberService.getCurrentMember();
         List<ReadingRecord> records = service.getReadingRecords(currentMember, isbn);
@@ -42,7 +42,7 @@ public class ReadingRecordController {
                 linkTo(methodOn(ReadingRecordController.class).getReadingRecord(isbn)).withSelfRel()));
     }
 
-    @PutMapping("/{isbn}")
+    @PutMapping("/book/{isbn}")
     public ResponseEntity<EntityModel<ReadingRecord>> putReadingRecord(
             @PathVariable("isbn") String isbn,
             @RequestBody ReadingRecordPutRequest request) {

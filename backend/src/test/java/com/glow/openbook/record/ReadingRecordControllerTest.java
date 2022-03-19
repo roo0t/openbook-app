@@ -72,7 +72,7 @@ class ReadingRecordControllerTest {
                 ReadingRecord.builder().id(2L).book(book).member(member).startPage(101).endPage(200).build());
         when(memberService.getCurrentMember()).thenReturn(member);
         when(service.getReadingRecords(member, isbn)).thenReturn(records);
-        String url = "/record/" + isbn;
+        String url = "/record/book/" + isbn;
 
         // Act
         final ResultActions resultActions = mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
@@ -120,7 +120,7 @@ class ReadingRecordControllerTest {
 
         // Act
         final ResultActions resultActions = mockMvc.perform(
-                put("/record/" + isbn).contentType(MediaType.APPLICATION_JSON).content(requestString));
+                put("/record/book/" + isbn).contentType(MediaType.APPLICATION_JSON).content(requestString));
 
         // Assert
         verify(service, times(1)).createReadingRecord(member, book, startPage, endPage);
