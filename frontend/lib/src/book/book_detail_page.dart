@@ -7,11 +7,15 @@ import 'book_vo.dart';
 import 'note_photo_gallery.dart';
 import 'note_vo.dart';
 import 'page_slider.dart';
+import 'reading_record_controller.dart';
 
 class BookDetailPage extends StatelessWidget {
   final BookVo book;
+  late ReadingRecordController readingRecordController;
 
-  const BookDetailPage({Key? key, required this.book}) : super(key: key);
+  BookDetailPage({Key? key, required this.book}) : super(key: key) {
+    readingRecordController = ReadingRecordController(book);
+  }
 
   @override
   Widget build(BuildContext context) {
