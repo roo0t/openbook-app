@@ -13,7 +13,7 @@ class ReadingRecordVo {
 
   ReadingRecordVo.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        startPage = json['start_page'],
-        endPage = json['end_page'],
-        recordedAt = DateTime.parse(json['recorded_at']);
+        startPage = json['startPage'],
+        endPage = json['endPage'],
+        recordedAt = DateTime.parse(json['recordedAt']);
 }

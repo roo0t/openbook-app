@@ -1,5 +1,16 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+
+import '../backend_uris.dart';
+import '../user/sign_in_page.dart';
+import '../user/user_controller.dart';
+import '../wait_dialog.dart';
+import 'book_vo.dart';
+import 'reading_record_vo.dart';
 
 enum ReadingRecordAddState {
   startPage,
@@ -15,6 +26,10 @@ class ReadingRecordAddController extends GetxController {
   Rx<ReadingRecordAddState> state = ReadingRecordAddState.startPage.obs;
   Rx<String?> startPageErrorString = "".obs;
 
+  final BookVo book;
+
+  ReadingRecordAddController(this.book);
+
   @override
   onInit() {
     startPageController.addListener(() {
@@ -28,7 +43,7 @@ class ReadingRecordAddController extends GetxController {
     super.onInit();
   }
 
-  turnToNextState() {
+  turnToNextState(BuildContext context) async {
     switch (state.value) {
       case ReadingRecordAddState.startPage:
         if (startPageController.text.isEmpty) {
@@ -39,7 +54,50 @@ class ReadingRecordAddController extends GetxController {
         }
         break;
       case ReadingRecordAddState.endPage:
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) => const WaitDialog(),
+        );
+        ReadingRecordVo? addedReadingRecord = await addReadingRecord();
+        Navigator.pop(context); // Hide loading dialog
+        if (addedReadingRecord != null) {
+          Get.back();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('오류가 발생하였습니다.'),
+            ),
+          );
+        }
         break;
     }
+  }
+
+  Future<ReadingRecordVo?> addReadingRecord() async {
+    try {
+      final response =
+          await http.put(BackendUris.getReadingRecordsUri(book.isbn),
+              body: jsonEncode({
+                "startPage": startPageController.text,
+                "endPage": endPageController.text,
+              }),
+              headers: {
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+            'X-AUTH-TOKEN': Get.find<UserController>().token!
+          });
+      if (response.statusCode == HttpStatus.ok) {
+        final responseBody =
+            jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        return ReadingRecordVo.fromJson(responseBody);
+      } else if (response.statusCode == HttpStatus.forbidden) {
+        Get.find<UserController>().signOut();
+        Get.offAll(() => const SignInPage());
+      }
+    } catch (e) {
+      print(e);
+    }
+    return null;
   }
 }

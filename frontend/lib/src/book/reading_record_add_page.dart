@@ -6,10 +6,11 @@ import 'reading_record_controller.dart';
 
 class ReadingRecordAddPage extends StatelessWidget {
   final ReadingRecordController controller;
-  final ReadingRecordAddController addController =
-      Get.put(ReadingRecordAddController());
+  late final ReadingRecordAddController addController;
 
-  ReadingRecordAddPage({Key? key, required this.controller}) : super(key: key);
+  ReadingRecordAddPage({Key? key, required this.controller}) : super(key: key) {
+    addController = ReadingRecordAddController(controller.book);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +84,7 @@ class ReadingRecordAddPage extends StatelessWidget {
             left: 0,
             right: 0,
             child: InkWell(
-              onTap: () => addController.turnToNextState(),
+              onTap: () => addController.turnToNextState(context),
               child: SizedBox(
                 width: double.infinity,
                 child: Container(
