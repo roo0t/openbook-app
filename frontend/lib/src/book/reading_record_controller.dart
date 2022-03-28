@@ -37,7 +37,7 @@ class ReadingRecordController extends GetxController {
     if (response.statusCode == HttpStatus.ok) {
       var responseJson = json.decode(utf8.decode(response.bodyBytes));
       if (responseJson['_embedded'] != null) {
-        return responseJson['_embedded']['readingRecordsList']
+        return responseJson['_embedded']['readingRecordList']
             .map<ReadingRecordVo>((record) {
           return ReadingRecordVo.fromJson(record);
         }).toList();
@@ -49,5 +49,40 @@ class ReadingRecordController extends GetxController {
       Get.offAll(() => const SignInPage());
     }
     return List.empty();
+  }
+
+  Future<ReadingRecordVo?> addRecord(int startPage, int endPage) async {
+    final ReadingRecordVo? addedRecord = await _addRecord(startPage, endPage);
+    if (addedRecord != null) {
+      readingRecords.add(addedRecord);
+    }
+    return addedRecord;
+  }
+
+  Future<ReadingRecordVo?> _addRecord(int startPage, int endPage) async {
+    try {
+      final response =
+          await http.put(BackendUris.getReadingRecordsUri(book.isbn),
+              body: jsonEncode({
+                "startPage": startPage,
+                "endPage": endPage,
+              }),
+              headers: {
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+            'X-AUTH-TOKEN': Get.find<UserController>().token!
+          });
+      if (response.statusCode == HttpStatus.ok) {
+        final responseBody =
+            jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        return ReadingRecordVo.fromJson(responseBody);
+      } else if (response.statusCode == HttpStatus.forbidden) {
+        Get.find<UserController>().signOut();
+        Get.offAll(() => const SignInPage());
+      }
+    } catch (e) {
+      print(e);
+    }
+    return null;
   }
 }

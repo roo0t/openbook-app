@@ -7,10 +7,7 @@ import 'reading_record_add_page.dart';
 import 'reading_record_controller.dart';
 
 class ReadingRecordListPage extends StatelessWidget {
-  final ReadingRecordController controller;
-
-  const ReadingRecordListPage(
-    this.controller, {
+  const ReadingRecordListPage({
     Key? key,
   }) : super(key: key);
 
@@ -20,7 +17,7 @@ class ReadingRecordListPage extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
           onPressed: () => Get.to(
-            () => ReadingRecordAddPage(controller: controller),
+            () => ReadingRecordAddPage(),
           ),
         ),
         body: CustomScrollView(
@@ -43,7 +40,7 @@ class ReadingRecordListPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        controller.book.title,
+                        Get.find<ReadingRecordController>().book.title,
                         style: const TextStyle(fontSize: 14),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -53,34 +50,52 @@ class ReadingRecordListPage extends StatelessWidget {
                 ),
               ),
             ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-                  if (controller.readingRecords.isEmpty) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 24.0),
-                        child: Text(
-                          '독서 기록이 없습니다. 이제 읽어볼까요?',
-                          style: TextStyle(color: Colors.grey),
+            Obx(
+              () => SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    final controller = Get.find<ReadingRecordController>();
+                    if (controller.readingRecords.isEmpty) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24.0),
+                          child: Text(
+                            '독서 기록이 없습니다. 이제 읽어볼까요?',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                  return Card(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '${controller.readingRecords[index].startPage}-${controller.readingRecords[index].endPage}',
-                          style: const TextStyle(fontSize: 26),
-                        ),
-                        const Text('3일 전'),
-                      ],
-                    ),
-                  );
-                },
-                childCount: max(controller.readingRecords.length, 1),
+                      );
+                    } else {
+                      if (index % 2 == 0) {
+                        final int itemIndex = index ~/ 2;
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${controller.readingRecords[itemIndex].startPage} - ${controller.readingRecords[itemIndex].endPage}쪽',
+                                style: const TextStyle(fontSize: 26),
+                              ),
+                              const Text('3일 전'),
+                            ],
+                          ),
+                        );
+                      } else {
+                        return const Divider(color: Colors.grey);
+                      }
+                    }
+                  },
+                  childCount: max(
+                    Get.find<ReadingRecordController>().readingRecords.length *
+                            2 -
+                        1,
+                    1,
+                  ),
+                ),
               ),
             ),
           ],

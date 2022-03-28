@@ -5,10 +5,11 @@ import 'reading_record_add_controller.dart';
 import 'reading_record_controller.dart';
 
 class ReadingRecordAddPage extends StatelessWidget {
-  final ReadingRecordController controller;
+  late final ReadingRecordController controller;
   late final ReadingRecordAddController addController;
 
-  ReadingRecordAddPage({Key? key, required this.controller}) : super(key: key) {
+  ReadingRecordAddPage({Key? key}) : super(key: key) {
+    controller = Get.find<ReadingRecordController>();
     addController = ReadingRecordAddController(controller.book);
   }
 
