@@ -3,8 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../time_util.dart';
 import 'reading_record_add_page.dart';
 import 'reading_record_controller.dart';
+import 'reading_record_vo.dart';
 
 class ReadingRecordListPage extends StatelessWidget {
   final ReadingRecordController controller;
@@ -70,6 +72,8 @@ class ReadingRecordListPage extends StatelessWidget {
                     } else {
                       if (index % 2 == 0) {
                         final int itemIndex = index ~/ 2;
+                        final ReadingRecordVo readingRecord =
+                            controller.readingRecords[itemIndex];
                         return Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
@@ -79,10 +83,15 @@ class ReadingRecordListPage extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '${controller.readingRecords[itemIndex].startPage} - ${controller.readingRecords[itemIndex].endPage}쪽',
+                                '${readingRecord.startPage} - ${readingRecord.endPage}쪽',
                                 style: const TextStyle(fontSize: 26),
                               ),
-                              const Text('3일 전'),
+                              Text(
+                                '${TimeUtil.relativeTime(
+                                  readingRecord.recordedAt,
+                                  DateTime.now(),
+                                )} 전',
+                              ),
                             ],
                           ),
                         );
