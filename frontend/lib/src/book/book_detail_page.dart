@@ -13,12 +13,14 @@ import 'reading_record_controller.dart';
 
 class BookDetailPage extends StatelessWidget {
   final BookVo book;
+  late final ReadingRecordController readingRecordController;
 
-  const BookDetailPage({Key? key, required this.book}) : super(key: key);
+  BookDetailPage({Key? key, required this.book}) : super(key: key) {
+    readingRecordController = ReadingRecordController(book);
+  }
 
   @override
   Widget build(BuildContext context) {
-    Get.put(ReadingRecordController(book));
     return Scaffold(
       body: Column(
         children: [
@@ -209,7 +211,9 @@ class BookDetailPage extends StatelessWidget {
     return SliverToBoxAdapter(
       child: InkWell(
         onTap: () => Get.to(
-          () => const ReadingRecordListPage(),
+          () => ReadingRecordListPage(
+            controller: readingRecordController,
+          ),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(

@@ -7,8 +7,11 @@ import 'reading_record_add_page.dart';
 import 'reading_record_controller.dart';
 
 class ReadingRecordListPage extends StatelessWidget {
+  final ReadingRecordController controller;
+
   const ReadingRecordListPage({
     Key? key,
+    required this.controller,
   }) : super(key: key);
 
   @override
@@ -17,7 +20,7 @@ class ReadingRecordListPage extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
           onPressed: () => Get.to(
-            () => ReadingRecordAddPage(),
+            () => ReadingRecordAddPage(controller: controller),
           ),
         ),
         body: CustomScrollView(
@@ -40,7 +43,7 @@ class ReadingRecordListPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        Get.find<ReadingRecordController>().book.title,
+                        controller.book.title,
                         style: const TextStyle(fontSize: 14),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -54,7 +57,6 @@ class ReadingRecordListPage extends StatelessWidget {
               () => SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
-                    final controller = Get.find<ReadingRecordController>();
                     if (controller.readingRecords.isEmpty) {
                       return const Center(
                         child: Padding(
@@ -90,9 +92,7 @@ class ReadingRecordListPage extends StatelessWidget {
                     }
                   },
                   childCount: max(
-                    Get.find<ReadingRecordController>().readingRecords.length *
-                            2 -
-                        1,
+                    controller.readingRecords.length * 2 - 1,
                     1,
                   ),
                 ),

@@ -12,6 +12,7 @@ enum ReadingRecordAddState {
 }
 
 class ReadingRecordAddController extends GetxController {
+  final ReadingRecordController _controller;
   final TextEditingController startPageController = TextEditingController();
   final TextEditingController endPageController = TextEditingController();
   final FocusNode startPageFocusNode = FocusNode();
@@ -22,7 +23,7 @@ class ReadingRecordAddController extends GetxController {
 
   final BookVo book;
 
-  ReadingRecordAddController(this.book);
+  ReadingRecordAddController(this._controller) : book = _controller.book;
 
   @override
   onInit() {
@@ -69,7 +70,7 @@ class ReadingRecordAddController extends GetxController {
   }
 
   Future<ReadingRecordVo?> addReadingRecord() async {
-    return await Get.find<ReadingRecordController>().addRecord(
+    return await _controller.addRecord(
       int.parse(startPageController.text),
       int.parse(endPageController.text),
     );
