@@ -21,9 +21,13 @@ class ReadingRecordController extends GetxController {
   ReadingRecordController(this.book) : super() {
     _getRecords().then((records) {
       readingRecords(records);
-      totalReadPages(calculateTotalReadPageCount());
-      latestReadingRecordDate(getLatestReadingRecordDate());
+      _handleRecordsUpdated();
     });
+  }
+
+  _handleRecordsUpdated() {
+    totalReadPages(calculateTotalReadPageCount());
+    latestReadingRecordDate(getLatestReadingRecordDate());
   }
 
   Future<List<ReadingRecordVo>> _getRecords() async {
@@ -60,6 +64,7 @@ class ReadingRecordController extends GetxController {
     final ReadingRecordVo? addedRecord = await _addRecord(startPage, endPage);
     if (addedRecord != null) {
       readingRecords.add(addedRecord);
+      _handleRecordsUpdated();
     }
     return addedRecord;
   }
