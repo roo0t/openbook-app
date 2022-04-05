@@ -7,6 +7,8 @@ import 'reading_record_controller.dart';
 class ReadingRecordAddPage extends StatelessWidget {
   final ReadingRecordController controller;
 
+  static const double bottomButtonHeight = 50;
+
   const ReadingRecordAddPage({Key? key, required this.controller})
       : super(key: key);
 
@@ -26,55 +28,63 @@ class ReadingRecordAddPage extends StatelessWidget {
               width: double.infinity,
               height: double.infinity,
               child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Image(
-                        image: NetworkImage(controller.book.coverImageUrl),
-                        width: 150,
-                        height: 140,
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        controller.book.title,
-                        style: Theme.of(context).textTheme.headline6?.merge(
-                              const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 20),
-                      Obx(
-                        () => buildPageInputField(
-                          addController.startPageController,
-                          addController.startPageFocusNode,
-                          '읽기 시작한 페이지',
-                          '몇 쪽부터 읽었나요?',
-                          addController.startPageErrorString.value,
-                          addController.state.value ==
-                              ReadingRecordAddState.startPage,
+                child: SingleChildScrollView(
+                  controller: addController.scrollViewController,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      24,
+                      24,
+                      24,
+                      24 + bottomButtonHeight,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Image(
+                          image: NetworkImage(controller.book.coverImageUrl),
+                          width: 150,
+                          height: 140,
                         ),
-                      ),
-                      Obx(
-                        () => Visibility(
-                          child: buildPageInputField(
-                            addController.endPageController,
-                            addController.endPageFocusNode,
-                            '마지막으로 읽은 페이지',
-                            '몇 쪽까지 읽었나요?',
-                            addController.endPageErrorString.value,
+                        const SizedBox(height: 20),
+                        Text(
+                          controller.book.title,
+                          style: Theme.of(context).textTheme.headline6?.merge(
+                                const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 20),
+                        Obx(
+                          () => buildPageInputField(
+                            addController.startPageController,
+                            addController.startPageFocusNode,
+                            '읽기 시작한 페이지',
+                            '몇 쪽부터 읽었나요?',
+                            addController.startPageErrorString.value,
                             addController.state.value ==
+                                ReadingRecordAddState.startPage,
+                          ),
+                        ),
+                        Obx(
+                          () => Visibility(
+                            child: buildPageInputField(
+                              addController.endPageController,
+                              addController.endPageFocusNode,
+                              '마지막으로 읽은 페이지',
+                              '몇 쪽까지 읽었나요?',
+                              addController.endPageErrorString.value,
+                              addController.state.value ==
+                                  ReadingRecordAddState.endPage,
+                            ),
+                            visible: addController.state.value ==
                                 ReadingRecordAddState.endPage,
                           ),
-                          visible: addController.state.value ==
-                              ReadingRecordAddState.endPage,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -88,7 +98,7 @@ class ReadingRecordAddPage extends StatelessWidget {
                 child: SizedBox(
                   width: double.infinity,
                   child: Container(
-                    height: 50,
+                    height: bottomButtonHeight,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: Theme.of(context).primaryColorDark,

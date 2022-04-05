@@ -15,6 +15,7 @@ class ReadingRecordAddController extends GetxController {
   final ReadingRecordController _controller;
   final TextEditingController startPageController = TextEditingController();
   final TextEditingController endPageController = TextEditingController();
+  final ScrollController scrollViewController = ScrollController();
   final FocusNode startPageFocusNode = FocusNode();
   final FocusNode endPageFocusNode = FocusNode();
 
@@ -68,6 +69,14 @@ class ReadingRecordAddController extends GetxController {
             startPageErrorString('');
             state(ReadingRecordAddState.endPage);
             endPageFocusNode.requestFocus();
+            Future.delayed(
+              const Duration(milliseconds: 100),
+              () => scrollViewController.animateTo(
+                scrollViewController.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 100),
+                curve: Curves.ease,
+              ),
+            );
           }
         }
         break;
