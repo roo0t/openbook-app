@@ -42,7 +42,7 @@ class ReadingRecordController extends GetxController {
         },
       );
     } catch (e) {
-      return List.empty();
+      return [];
     }
     if (response.statusCode == HttpStatus.ok) {
       var responseJson = json.decode(utf8.decode(response.bodyBytes));
@@ -52,13 +52,13 @@ class ReadingRecordController extends GetxController {
           return ReadingRecordVo.fromJson(record);
         }).toList();
       } else {
-        return List.empty();
+        return [];
       }
     } else if (response.statusCode == HttpStatus.forbidden) {
       Get.find<UserController>().signOut();
       Get.offAll(() => const SignInPage());
     }
-    return List.empty();
+    return [];
   }
 
   Future<ReadingRecordVo?> addRecord(int startPage, int endPage) async {
