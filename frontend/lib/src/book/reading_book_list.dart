@@ -1,12 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'book_detail_page.dart';
 import 'book_vo.dart';
 import 'reading_book_list_controller.dart';
-import 'reading_books_test_data.dart';
 
 class ReadingBookList extends StatelessWidget {
   const ReadingBookList({
@@ -15,10 +12,6 @@ class ReadingBookList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List readingBooksJson = jsonDecode(readingBooksTestData);
-    List<BookVo> readingBooks =
-        readingBooksJson.map((json) => BookVo.fromJson(json)).toList();
-
     return GetBuilder<ReadingBookListController>(
         init: ReadingBookListController(),
         builder: (controller) {
