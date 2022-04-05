@@ -57,30 +57,52 @@ class ReadingRecordAddController extends GetxController {
         if (startPageController.text.isEmpty) {
           startPageErrorString('시작 페이지를 입력해주세요.');
         } else {
-          startPageErrorString(null);
-          state(ReadingRecordAddState.endPage);
-          endPageFocusNode.requestFocus();
+          int? startPage = int.tryParse(startPageController.text);
+          if (startPage == null) {
+            startPageErrorString('숫자만 입력해주세요.');
+          } else if (startPage <= 0) {
+            startPageErrorString('0보다 큰 수를 입력해주세요.');
+          } else if (startPage > _controller.book.totalPages) {
+            startPageErrorString('시작 페이지는 총 페이지 수보다 작아야 합니다.');
+          } else {
+            startPageErrorString('');
+            state(ReadingRecordAddState.endPage);
+            endPageFocusNode.requestFocus();
+          }
         }
         break;
       case ReadingRecordAddState.endPage:
         if (endPageController.text.isEmpty) {
           endPageErrorString('끝 페이지를 입력해 주세요.');
         } else {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext context) => const WaitDialog(),
-          );
-          ReadingRecordVo? addedReadingRecord = await addReadingRecord();
-          Navigator.pop(context); // Hide loading dialog
-          if (addedReadingRecord != null) {
-            Get.back();
+          int startPage = int.parse(startPageController.text);
+          int? endPage = int.tryParse(endPageController.text);
+          if (endPage == null) {
+            endPageErrorString('숫자만 입력해주세요.');
+          } else if (startPage <= 0) {
+            endPageErrorString('0보다 큰 수를 입력해주세요.');
+          } else if (endPage > _controller.book.totalPages) {
+            endPageErrorString('끝 페이지는 총 페이지 수보다 작아야 합니다.');
+          } else if (endPage < startPage) {
+            endPageErrorString('끝 페이지는 시작 페이지보다 클 수 없어요.');
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('오류가 발생하였습니다.'),
-              ),
+            endPageErrorString('');
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) => const WaitDialog(),
             );
+            ReadingRecordVo? addedReadingRecord = await addReadingRecord();
+            Navigator.pop(context); // Hide loading dialog
+            if (addedReadingRecord != null) {
+              Get.back();
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('오류가 발생하였습니다.'),
+                ),
+              );
+            }
           }
         }
         break;
