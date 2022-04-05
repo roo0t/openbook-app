@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:openbook/src/book/reading_book_list_controller.dart';
 
 import '../backend_uris.dart';
 import '../time_util.dart';
@@ -65,6 +66,7 @@ class ReadingRecordController extends GetxController {
     if (addedRecord != null) {
       readingRecords.add(addedRecord);
       _handleRecordsUpdated();
+      Get.find<ReadingBookListController>().updateReadingBookList();
     }
     return addedRecord;
   }

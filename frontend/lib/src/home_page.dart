@@ -5,6 +5,7 @@ import 'package:openbook/src/timer/timer_page.dart';
 import 'package:openbook/src/white_logo_image.dart';
 
 import 'book/reading_book_list.dart';
+import 'book/reading_book_list_controller.dart';
 import 'book_search/book_search_page.dart';
 import 'user/sign_in_page.dart';
 import 'user/user_controller.dart';
@@ -40,8 +41,12 @@ class HomePage extends StatelessWidget {
             child: const ReadingGroupList(),
           ),
           Container(
-              margin: const EdgeInsets.only(top: 15),
-              child: const ReadingBookList()),
+            margin: const EdgeInsets.only(top: 15),
+            child: GetBuilder<ReadingBookListController>(
+              init: ReadingBookListController(),
+              builder: (_) => const ReadingBookList(),
+            ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(

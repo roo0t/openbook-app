@@ -14,10 +14,14 @@ class ReadingBookListController extends GetxController {
   RxList<BookVo> books = RxList<BookVo>();
 
   ReadingBookListController() : super() {
-    _getReadingBookList().then((books) {
-      this.books(books);
+    updateReadingBookList().then((_) {
       loaded(true);
     });
+  }
+
+  Future<void> updateReadingBookList() async {
+    List<BookVo> books = await _getReadingBookList();
+    this.books(books);
   }
 
   Future<List<BookVo>> _getReadingBookList() async {

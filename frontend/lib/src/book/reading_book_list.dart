@@ -12,33 +12,30 @@ class ReadingBookList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ReadingBookListController>(
-        init: ReadingBookListController(),
-        builder: (controller) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
-                child: Text(
-                  "읽고 있는 책",
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-              ),
-              Obx(
-                () => SizedBox(
-                  height: 240,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: controller.books
-                        .map((book) => buildListItem(book))
-                        .toList(),
-                  ),
-                ),
-              ),
-            ],
-          );
-        });
+    ReadingBookListController controller =
+        Get.find<ReadingBookListController>();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
+          child: Text(
+            "읽고 있는 책",
+            style: Theme.of(context).textTheme.headline6,
+          ),
+        ),
+        Obx(
+          () => SizedBox(
+            height: 240,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children:
+                  controller.books.map((book) => buildListItem(book)).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget buildListItem(BookVo book) {
