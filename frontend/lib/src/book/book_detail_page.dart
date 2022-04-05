@@ -13,11 +13,8 @@ import 'reading_record_controller.dart';
 
 class BookDetailPage extends StatelessWidget {
   final BookVo book;
-  late final ReadingRecordController readingRecordController;
 
-  BookDetailPage({Key? key, required this.book}) : super(key: key) {
-    readingRecordController = ReadingRecordController(book);
-  }
+  const BookDetailPage({Key? key, required this.book}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -209,54 +206,58 @@ class BookDetailPage extends StatelessWidget {
 
   SliverToBoxAdapter buildRecordSummarySection() {
     return SliverToBoxAdapter(
-      child: InkWell(
-        onTap: () => Get.to(
-          () => ReadingRecordListPage(
-            controller: readingRecordController,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 14.0,
-            vertical: 10.0,
-          ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Text(
-                      '45%',
-                      style: TextStyle(fontSize: 30),
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '365쪽 중 164쪽 읽었습니다.',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      Text(
-                        '3일 전',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  const Icon(
-                    Icons.keyboard_arrow_right_outlined,
-                  ),
-                ],
+      child: GetBuilder<ReadingRecordController>(
+          init: ReadingRecordController(book),
+          builder: (readingRecordController) {
+            return InkWell(
+              onTap: () => Get.to(
+                () => ReadingRecordListPage(
+                  controller: readingRecordController,
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14.0,
+                  vertical: 10.0,
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Text(
+                            '45%',
+                            style: TextStyle(fontSize: 30),
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '365쪽 중 164쪽 읽었습니다.',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              '3일 전',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        const Icon(
+                          Icons.keyboard_arrow_right_outlined,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
     );
   }
 }

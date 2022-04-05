@@ -6,11 +6,9 @@ import 'reading_record_controller.dart';
 
 class ReadingRecordAddPage extends StatelessWidget {
   final ReadingRecordController controller;
-  late final ReadingRecordAddController addController;
 
-  ReadingRecordAddPage({Key? key, required this.controller})
-      : addController = ReadingRecordAddController(controller),
-        super(key: key);
+  const ReadingRecordAddPage({Key? key, required this.controller})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,97 +18,100 @@ class ReadingRecordAddPage extends StatelessWidget {
         title: const Text('독서 기록 추가'),
         elevation: 0,
       ),
-      body: Stack(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image(
-                      image: NetworkImage(controller.book.coverImageUrl),
-                      width: 150,
-                      height: 140,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      controller.book.title,
-                      style: Theme.of(context).textTheme.headline6?.merge(
-                            const TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 20),
-                    Obx(
-                      () => buildPageInputField(
-                        addController.startPageController,
-                        addController.startPageFocusNode,
-                        '읽기 시작한 페이지',
-                        '몇 쪽부터 읽었나요?',
-                        addController.startPageErrorString.value,
-                        addController.state.value ==
-                            ReadingRecordAddState.startPage,
+      body: GetBuilder<ReadingRecordAddController>(
+        init: ReadingRecordAddController(controller),
+        builder: (addController) => Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image(
+                        image: NetworkImage(controller.book.coverImageUrl),
+                        width: 150,
+                        height: 140,
                       ),
-                    ),
-                    Obx(
-                      () => Visibility(
-                        child: buildPageInputField(
-                          addController.endPageController,
-                          addController.endPageFocusNode,
-                          '마지막으로 읽은 페이지',
-                          '몇 쪽까지 읽었나요?',
-                          null,
+                      const SizedBox(height: 20),
+                      Text(
+                        controller.book.title,
+                        style: Theme.of(context).textTheme.headline6?.merge(
+                              const TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 20),
+                      Obx(
+                        () => buildPageInputField(
+                          addController.startPageController,
+                          addController.startPageFocusNode,
+                          '읽기 시작한 페이지',
+                          '몇 쪽부터 읽었나요?',
+                          addController.startPageErrorString.value,
                           addController.state.value ==
+                              ReadingRecordAddState.startPage,
+                        ),
+                      ),
+                      Obx(
+                        () => Visibility(
+                          child: buildPageInputField(
+                            addController.endPageController,
+                            addController.endPageFocusNode,
+                            '마지막으로 읽은 페이지',
+                            '몇 쪽까지 읽었나요?',
+                            addController.endPageErrorString.value,
+                            addController.state.value ==
+                                ReadingRecordAddState.endPage,
+                          ),
+                          visible: addController.state.value ==
                               ReadingRecordAddState.endPage,
                         ),
-                        visible: addController.state.value ==
-                            ReadingRecordAddState.endPage,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: InkWell(
-              onTap: () => addController.turnToNextState(context),
-              child: SizedBox(
-                width: double.infinity,
-                child: Container(
-                  height: 50,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColorDark,
-                  ),
-                  child: Obx(
-                    () => Text(
-                      addController.state.value ==
-                              ReadingRecordAddState.startPage
-                          ? '다음'
-                          : '기록 추가하기',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        height: 1,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                    ],
                   ),
                 ),
               ),
             ),
-          )
-        ],
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: InkWell(
+                onTap: () => addController.turnToNextState(context),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColorDark,
+                    ),
+                    child: Obx(
+                      () => Text(
+                        addController.state.value ==
+                                ReadingRecordAddState.startPage
+                            ? '다음'
+                            : '기록 추가하기',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          height: 1,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
