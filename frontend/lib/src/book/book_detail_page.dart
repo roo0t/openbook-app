@@ -211,9 +211,7 @@ class BookDetailPage extends StatelessWidget {
           builder: (readingRecordController) {
             return InkWell(
               onTap: () => Get.to(
-                () => ReadingRecordListPage(
-                  controller: readingRecordController,
-                ),
+                () => const ReadingRecordListPage(),
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(

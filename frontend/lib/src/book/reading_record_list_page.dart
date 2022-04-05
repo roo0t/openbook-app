@@ -9,15 +9,13 @@ import 'reading_record_controller.dart';
 import 'reading_record_vo.dart';
 
 class ReadingRecordListPage extends StatelessWidget {
-  final ReadingRecordController controller;
-
   const ReadingRecordListPage({
     Key? key,
-    required this.controller,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    ReadingRecordController controller = Get.find<ReadingRecordController>();
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
