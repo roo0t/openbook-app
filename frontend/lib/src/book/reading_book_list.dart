@@ -62,6 +62,9 @@ class ReadingBookList extends StatelessWidget {
             ),
             Text(
               book.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 15),
               textAlign: TextAlign.center,
             ),
           ],
