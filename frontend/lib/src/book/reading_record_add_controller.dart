@@ -44,6 +44,7 @@ class ReadingRecordAddController extends GetxController {
         if (startPageController.text.isEmpty) {
           startPageErrorString('시작 페이지를 입력해주세요.');
         } else {
+          startPageErrorString(null);
           state(ReadingRecordAddState.endPage);
           endPageFocusNode.requestFocus();
         }
