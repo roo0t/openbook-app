@@ -226,23 +226,30 @@ class BookDetailPage extends StatelessWidget {
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(right: 10),
-                          child: Text(
-                            '45%',
-                            style: TextStyle(fontSize: 30),
+                          child: Obx(
+                            () => Text(
+                              '${(readingRecordController.totalReadPages / book.totalPages * 100).toStringAsFixed(0)}%',
+                              style: const TextStyle(fontSize: 30),
+                            ),
                           ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '365쪽 중 164쪽 읽었습니다.',
-                              style: TextStyle(fontSize: 14),
+                            Obx(
+                              () => Text(
+                                '${book.totalPages}쪽 중 ${readingRecordController.totalReadPages}쪽 읽었습니다.',
+                                style: const TextStyle(fontSize: 14),
+                              ),
                             ),
-                            Text(
-                              '3일 전',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14,
+                            Obx(
+                              () => Text(
+                                readingRecordController
+                                    .latestReadingRecordDate.value,
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ],

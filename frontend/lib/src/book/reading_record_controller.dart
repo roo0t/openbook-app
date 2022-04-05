@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import '../backend_uris.dart';
+import '../time_util.dart';
 import '../user/sign_in_page.dart';
 import '../user/user_controller.dart';
 import 'book_vo.dart';
@@ -14,10 +15,14 @@ import 'reading_record_vo.dart';
 class ReadingRecordController extends GetxController {
   final BookVo book;
   RxList<ReadingRecordVo> readingRecords = RxList<ReadingRecordVo>();
+  RxInt totalReadPages = 0.obs;
+  RxString latestReadingRecordDate = ''.obs;
 
   ReadingRecordController(this.book) : super() {
     _getRecords().then((records) {
       readingRecords(records);
+      totalReadPages(calculateTotalReadPageCount());
+      latestReadingRecordDate(getLatestReadingRecordDate());
     });
   }
 
@@ -84,5 +89,30 @@ class ReadingRecordController extends GetxController {
       print(e);
     }
     return null;
+  }
+
+  int calculateTotalReadPageCount() {
+    List<bool> readPages = List.filled(book.totalPages, false);
+    for (final record in readingRecords) {
+      for (int i = record.startPage; i <= record.endPage; i++) {
+        readPages[i] = true;
+      }
+    }
+    return readPages.where((read) => read).length;
+  }
+
+  String? getLatestReadingRecordDate() {
+    if (readingRecords.isEmpty) {
+      return '';
+    }
+    return '${TimeUtil.relativeTime(
+      readingRecords
+          .reduce(
+            (cur, next) =>
+                cur.recordedAt.isBefore(next.recordedAt) ? next : cur,
+          )
+          .recordedAt,
+      DateTime.now(),
+    )} 전';
   }
 }
