@@ -5,6 +5,8 @@ env:
   variables:
     SPRING_PROFILES_ACTIVE: "dev"
     ALADIN_TTB_KEY: ""
+    JWT_SECRET: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjE0OTg1ODY1ODAsImV4cCI6MTQ5OTE5MTM4MH0.YMS-Z1PmRsjxyrtkLADayLJ99OEz0Bz
+gpFZmeVXSRE8"
 
 phases:
   install:
