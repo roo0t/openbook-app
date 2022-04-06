@@ -1,5 +1,11 @@
 version: 0.2
 
+env:
+  shell: bash
+  variables:
+    SPRING_PROFILES_ACTIVE: "dev"
+    ALADIN_TTB_KEY: ""
+
 phases:
   install:
     runtime-versions:
