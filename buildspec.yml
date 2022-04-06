@@ -18,6 +18,6 @@ artifacts:
     - appspec.yml
     - scripts/**
   discard-paths: yes
- cache:
+cache:
   paths:
     - '/root/.m2/**/*'
