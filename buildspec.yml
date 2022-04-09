@@ -22,9 +22,7 @@ phases:
       - pwd
 artifacts:
   files:
-    - target/*.jar
-    - appspec.yml
-    - scripts/**
+    - backend/target/*.jar
   discard-paths: yes
 cache:
   paths:
