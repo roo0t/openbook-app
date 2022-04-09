@@ -1,2 +1,6 @@
+spring:
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
 aladin-ttb-key: ${ALADIN_TTB_KEY}
 spring-jwt-secret: ${JWT-SECRET}
