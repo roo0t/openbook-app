@@ -26,13 +26,5 @@ public class OpenBookApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		memberService.signUp("test@glowingreaders.club", "abcd1234");
-
-		final List<ReadingGroup> readingGroups = Arrays.asList(
-				ReadingGroup.builder()
-						.name("장애학 읽기모임")
-						.build()
-		);
-		readingGroupRepository.saveAll(readingGroups);
 	}
 }
