@@ -1,0 +1,49 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jackson:
+    pretty-print: true
+    deserialization:
+      fail-on-unknown-properties: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
+aladin-ttb-key: ${ALADIN_TTB_KEY}
+
+---
+spring:
+  profiles: dev
+spring-jwt-secret: ${JWT_SECRET}
+
+---
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+  flyway:
+    enabled: false
+spring-jwt-secret: kFw_ghm_8xA76Y9c0fBuZMvcMs4Hw4SBS6tJyASQd4PcPeXRyHDKrf-198eXzLlYEeYxw0Es5WaVVMF8_ofQkA
+
+---
+spring:
+  profiles: dev-local
+  datasource:
+    # Run local postgresql server with:
+    # docker run -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=pass -e POSTGRES_DB=openbook -d postgres
+    url: jdbc:postgresql://localhost:5432/openbook
+    username: postgres
+    password: pass
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+spring-jwt-secret: kFw_ghm_8xA76Y9c0fBuZMvcMs4Hw4SBS6tJyASQd4PcPeXRyHDKrf-198eXzLlYEeYxw0Es5WaVVMF8_ofQkA
