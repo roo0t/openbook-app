@@ -10,6 +10,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,7 +28,7 @@ public class Note {
     @JsonBackReference
     private Member author;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "book_isbn", nullable = false)
     @JsonBackReference
     private Book book;
@@ -37,6 +38,11 @@ public class Note {
 
     @Column(nullable = false)
     private String content;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "note_imageFileNames", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "imageFileNames")
+    private List<String> imageFileNames;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
     private ZonedDateTime createdAt;

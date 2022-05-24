@@ -3,6 +3,10 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   jackson:
     pretty-print: true
     deserialization:
@@ -12,6 +16,15 @@ spring:
     baseline-on-migrate: true
     baseline-version: 1
 aladin-ttb-key: ${ALADIN_TTB_KEY}
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ${AWS_REGION}
+    s3:
+      note-image-bucket: ${AWS_S3_NOTE_IMAGE_BUCKET}
 
 ---
 spring:
@@ -27,6 +40,15 @@ spring:
   flyway:
     enabled: false
 spring-jwt-secret: kFw_ghm_8xA76Y9c0fBuZMvcMs4Hw4SBS6tJyASQd4PcPeXRyHDKrf-198eXzLlYEeYxw0Es5WaVVMF8_ofQkA
+cloud:
+  aws:
+    credentials:
+      access-key: AKIAIOSFODNN7EXAMPLE
+      secret-key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+    region:
+      static: ap-northeast-2
+    s3:
+      note-image-bucket: notes
 
 ---
 spring:
