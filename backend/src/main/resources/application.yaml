@@ -48,6 +48,7 @@ cloud:
     region:
       static: ap-northeast-2
     s3:
+      endpoint-uri: http://localhost:9090
       note-image-bucket: notes
 
 ---

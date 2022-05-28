@@ -1,23 +1,26 @@
 package com.glow.openbook.note;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.glow.openbook.aws.S3Service;
 import com.glow.openbook.book.Book;
 import com.glow.openbook.book.BookRepository;
 import com.glow.openbook.member.Member;
 import com.glow.openbook.member.MemberRepository;
+import com.glow.openbook.member.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -29,9 +32,10 @@ import java.util.Random;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
@@ -56,11 +60,17 @@ class NoteControllerTest {
     @Autowired
     private S3Service s3Service;
 
+    @MockBean
+    private MemberService memberService;
+
     @Value("${cloud.aws.s3.note-image-bucket}")
     private String noteImageBucket;
 
     @Autowired
     private ResourceLoader resourceLoader;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setUp() {
@@ -107,6 +117,7 @@ class NoteControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "test@example.com")
     public void get_notes_returns_all_notes() throws Exception {
         // Arrange
         Member member = Member.builder()
@@ -115,6 +126,7 @@ class NoteControllerTest {
                 .nickname("test")
                 .build();
         UserDetails testUser = getUserDetails(member);
+        memberRepository.deleteAll();
         memberRepository.save(member);
 
         String isbn = "9780321356680";
@@ -123,7 +135,7 @@ class NoteControllerTest {
         bookRepository.save(book);
 
         noteRepository.deleteAll();
-        int noteCount = 100;
+        int noteCount = 10;
         List<Note> notes = new ArrayList<>();
         for(int i = 0; i < noteCount; i++) {
             Note note = getRandomNote(member, book);
@@ -133,17 +145,56 @@ class NoteControllerTest {
 
         // Act
         ResultActions resultActions = mockMvc.perform(
-                get("/note/{isbn}", isbn).with(user(testUser)));
+                get("/note").param("isbn", isbn).with(user(testUser)));
 
         // Assert
         resultActions
                 .andExpect(status().isOk())
-                .andDo(print())
                 .andExpect(jsonPath("$.content", hasSize(notes.size())))
                 .andExpect(jsonPath("$.content[0].content", is(notes.get(0).getContent())))
                 .andExpect(jsonPath("$.content[0].page", is(notes.get(0).getPage())))
-                .andExpect(jsonPath("$.content[0].imageFileNames", hasSize(notes.get(0).getImageFileNames().size())))
+                .andExpect(jsonPath("$.content[0].imageUris", hasSize(notes.get(0).getImageFileNames().size())))
                 .andExpect(jsonPath("$.links[?(@.rel=='self')]").exists())
         ;
+    }
+
+    @Test
+    public void add_note_adds_new_note() throws Exception {
+        // Arrange
+        Member member = Member.builder()
+                .emailAddress("test@example.com")
+                .password("password")
+                .nickname("test")
+                .build();
+        Member memberEntity = memberRepository.save(member);
+        UserDetails testUser = getUserDetails(memberEntity);
+
+        String isbn = "9780321356680";
+        int totalPages = 369;
+        Book book = Book.builder().isbn(isbn).totalPages(totalPages).build();
+        bookRepository.save(book);
+
+        noteRepository.deleteAll();
+
+        Resource resource = resourceLoader.getResource("classpath:test_image.jpg");
+        int page = new Random().nextInt(totalPages);
+        String content = generateRandomString(100);
+
+        when(memberService.getCurrentMember()).thenReturn(member);
+
+        // Act
+        ResultActions resultActions = mockMvc.perform(
+                multipart("/note/{isbn}/{page}", isbn, page)
+                        .file("images", resource.getInputStream().readAllBytes())
+                        .param("content", content)
+                        .with(user(testUser)));
+
+        // Assert
+        resultActions
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.content", is(content)))
+                .andExpect(jsonPath("$.page", is(page)))
+                .andExpect(jsonPath("$.imageUris", hasSize(1)));
     }
 }

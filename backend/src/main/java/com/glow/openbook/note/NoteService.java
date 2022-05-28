@@ -10,13 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,6 +29,10 @@ public class NoteService {
 
     @Value("${cloud.aws.s3.note-image-bucket}")
     private String noteImageBucket;
+
+    public Optional<Note> getNote(Long id) {
+        return noteRepository.findById(id);
+    }
 
     public Note addNote(Member member,
                         Book book,
