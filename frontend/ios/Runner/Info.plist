@@ -23,7 +23,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>바코드를 스캔하여 책을 검색하기 위해 카메라를 사용합니다.</string>
+	<string>바코드를 스캔 및 독서 노트 생성을 위해 카메라를 사용합니다.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

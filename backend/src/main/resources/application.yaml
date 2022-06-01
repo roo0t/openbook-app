@@ -70,3 +70,13 @@ logging:
             sql:
               BasicBinder: TRACE
 spring-jwt-secret: kFw_ghm_8xA76Y9c0fBuZMvcMs4Hw4SBS6tJyASQd4PcPeXRyHDKrf-198eXzLlYEeYxw0Es5WaVVMF8_ofQkA
+cloud:
+  aws:
+    credentials:
+      access-key: AKIAIOSFODNN7EXAMPLE
+      secret-key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+    region:
+      static: ap-northeast-2
+    s3:
+      endpoint-uri: http://localhost:9090
+      note-image-bucket: notes

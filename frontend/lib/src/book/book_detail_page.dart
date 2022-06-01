@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../expandable_text_widget.dart';
+import 'add_note_page.dart';
 import 'reading_record_list_page.dart';
 import 'book_vo.dart';
 import 'note_photo_gallery.dart';
@@ -43,8 +44,8 @@ class BookDetailPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.create),
+        onPressed: () => Get.to(() => AddNotePage()),
+        child: const Icon(Icons.camera_alt),
       ),
     );
   }

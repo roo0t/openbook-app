@@ -38,6 +38,9 @@ dependencies:
   lottie: ^1.2.1
   photo_view: ^0.13.0
   url_launcher: ^6.0.12
+  camera:
+  path_provider:
+  path:
 
 dev_dependencies:
   
