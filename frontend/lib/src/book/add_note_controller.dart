@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:get/get.dart';
 
 class AddNoteController extends GetxController {
@@ -29,10 +32,28 @@ class AddNoteController extends GetxController {
     }
   }
 
+  Future<String> cropPictureToSquare(String filePath) async {
+    ImageProperties properties =
+        await FlutterNativeImage.getImageProperties(filePath);
+
+    int? width = properties.width;
+    int? height = properties.height;
+    if (width == null || height == null) {
+      return filePath;
+    }
+    var offset = (height - width) / 2;
+
+    File croppedFile = await FlutterNativeImage.cropImage(
+        filePath, 0, offset.round(), width, width);
+
+    return croppedFile.path;
+  }
+
   takePicture() async {
     try {
       final image = await cameraController!.takePicture();
-      pictures.add(image.path);
+      final croppedImagePath = await cropPictureToSquare(image.path);
+      pictures.add(croppedImagePath);
     } catch (e) {
       // If an error occurs, log the error to the console.
       print(e);

@@ -101,8 +101,21 @@ class AddNotePage extends StatelessWidget {
         child: SizedBox(
           width: cardSize,
           height: cardSize,
-          child: CameraPreview(
-            controller.cameraController!,
+          child: ClipRect(
+            child: OverflowBox(
+              alignment: Alignment.center,
+              child: FittedBox(
+                fit: BoxFit.fitWidth,
+                child: SizedBox(
+                  width: cardSize,
+                  height:
+                      cardSize * controller.cameraController!.value.aspectRatio,
+                  child: CameraPreview(
+                    controller.cameraController!,
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
         onTap: controller.takePicture);
