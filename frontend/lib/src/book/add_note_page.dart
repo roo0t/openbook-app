@@ -22,12 +22,13 @@ class AddNotePage extends StatelessWidget {
           children: [
             SizedBox(
               child: Obx(() {
-                bool cameraIsInitialized = controller.cameraIsInitialized.value;
+                bool shouldShowCameraPreview =
+                    controller.shouldShowCameraPreview.value;
                 return ListView.builder(
                   itemBuilder: (context, index) => buildPictureListItem(
                     context,
                     index,
-                    cameraIsInitialized,
+                    shouldShowCameraPreview,
                   ),
                   itemCount: controller.pictures.length + 1,
                   scrollDirection: Axis.horizontal,
@@ -37,7 +38,9 @@ class AddNotePage extends StatelessWidget {
               height: MediaQuery.of(context).size.width,
             ),
             Center(
-              child: Text('AddNotePage'),
+              child: TextField(
+                controller: controller.textEditingController,
+              ),
             ),
           ],
         ),
@@ -59,11 +62,10 @@ class AddNotePage extends StatelessWidget {
         child: Builder(
           builder: (context) {
             if (index >= controller.pictures.length) {
-              print('Initizlied: ${cameraIsInitialized}');
               if (cameraIsInitialized) {
-                return cameraPreviewBox(cardSize, controller);
+                return cameraPreviewBox(context, cardSize, controller);
               } else {
-                return uninitializedCameraBox(cardSize);
+                return newPictureBox(cardSize);
               }
             } else {
               var imageFile = File(controller.pictures[index]);
@@ -83,40 +85,66 @@ class AddNotePage extends StatelessWidget {
     );
   }
 
-  Widget uninitializedCameraBox(double cardSize) {
-    return SizedBox(
-      width: cardSize,
-      height: cardSize,
-      child: const Center(
-        child: Icon(
-          Icons.add_a_photo_outlined,
-          size: 30,
+  Widget newPictureBox(double cardSize) {
+    return InkWell(
+      onTap: () => Get.find<AddNoteController>().showCameraPreview(),
+      child: SizedBox(
+        width: cardSize,
+        height: cardSize,
+        child: const Center(
+          child: Icon(
+            Icons.add_a_photo_outlined,
+            size: 30,
+          ),
         ),
       ),
     );
   }
 
-  Widget cameraPreviewBox(double cardSize, AddNoteController controller) {
+  Widget cameraPreviewBox(
+      context, double cardSize, AddNoteController controller) {
     return InkWell(
-        child: SizedBox(
-          width: cardSize,
-          height: cardSize,
-          child: ClipRect(
-            child: OverflowBox(
-              alignment: Alignment.center,
-              child: FittedBox(
-                fit: BoxFit.fitWidth,
-                child: SizedBox(
-                  width: cardSize,
-                  height:
-                      cardSize * controller.cameraController!.value.aspectRatio,
-                  child: CameraPreview(
-                    controller.cameraController!,
+        child: Stack(
+          children: [
+            SizedBox(
+              width: cardSize,
+              height: cardSize,
+              child: ClipRect(
+                child: OverflowBox(
+                  alignment: Alignment.center,
+                  child: FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: SizedBox(
+                      width: cardSize,
+                      height: cardSize *
+                          controller.cameraController!.value.aspectRatio,
+                      child: CameraPreview(
+                        controller.cameraController!,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    child: const Icon(Icons.close),
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(10),
+                      primary: Colors.white, // <-- Button color
+                      onPrimary: Colors.grey, // <-- Splash color
+                    ),
+                    onPressed: () => controller.hideCameraPreview(),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         onTap: controller.takePicture);
   }
