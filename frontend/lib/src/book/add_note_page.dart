@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,31 +19,50 @@ class AddNotePage extends StatelessWidget {
       ),
       body: GetBuilder<AddNoteController>(
         init: AddNoteController(),
-        builder: (controller) => Column(
-          children: [
-            SizedBox(
-              child: Obx(() {
-                bool shouldShowCameraPreview =
-                    controller.shouldShowCameraPreview.value;
-                return ListView.builder(
-                  itemBuilder: (context, index) => buildPictureListItem(
-                    context,
-                    index,
-                    shouldShowCameraPreview,
+        builder: (controller) => GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              dragStartBehavior: DragStartBehavior.down,
+              child: Column(
+                children: [
+                  SizedBox(
+                    child: Obx(() {
+                      bool shouldShowCameraPreview =
+                          controller.shouldShowCameraPreview.value;
+                      return ListView.builder(
+                        itemBuilder: (context, index) => buildPictureListItem(
+                          context,
+                          index,
+                          shouldShowCameraPreview,
+                        ),
+                        itemCount: controller.pictures.length + 1,
+                        scrollDirection: Axis.horizontal,
+                        physics: const PageScrollPhysics(),
+                      );
+                    }),
+                    height: MediaQuery.of(context).size.width,
                   ),
-                  itemCount: controller.pictures.length + 1,
-                  scrollDirection: Axis.horizontal,
-                  physics: const PageScrollPhysics(),
-                );
-              }),
-              height: MediaQuery.of(context).size.width,
-            ),
-            Center(
-              child: TextField(
-                controller: controller.textEditingController,
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24.0, 8.0, 24.0, 24.0),
+                      child: TextField(
+                        controller: controller.textEditingController,
+                        style: const TextStyle(fontSize: 15, height: 1.4),
+                        decoration: const InputDecoration(
+                          hintText: '어떤 생각을 남기고 싶나요?',
+                          border: InputBorder.none,
+                        ),
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
