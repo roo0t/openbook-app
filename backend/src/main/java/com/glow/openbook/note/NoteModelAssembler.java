@@ -34,6 +34,8 @@ public class NoteModelAssembler extends RepresentationModelAssemblerSupport<Note
     protected NoteModel instantiateModel(Note note) {
         NoteModel noteModel = new NoteModel();
         noteModel.setId(note.getId());
+        noteModel.setAuthorEmailAddress(note.getAuthor().getEmailAddress());
+        noteModel.setAuthorNickname(note.getAuthor().getNickname());
         noteModel.setContent(note.getContent());
         noteModel.setPage(note.getPage());
         noteModel.setImageUris(note.getImageFileNames()

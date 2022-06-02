@@ -10,6 +10,8 @@ import java.util.List;
 @Setter
 public class NoteModel extends RepresentationModel<NoteModel> {
     private Long id;
+    private String authorEmailAddress;
+    private String authorNickname;
     private String content;
     private int page;
     private List<String> imageUris;

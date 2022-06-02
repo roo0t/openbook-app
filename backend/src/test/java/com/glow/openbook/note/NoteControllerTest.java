@@ -195,6 +195,8 @@ class NoteControllerTest {
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.content", is(content)))
                 .andExpect(jsonPath("$.page", is(page)))
-                .andExpect(jsonPath("$.imageUris", hasSize(1)));
+                .andExpect(jsonPath("$.imageUris", hasSize(1)))
+                .andExpect(jsonPath("$.authorEmailAddress", is(memberEntity.getEmailAddress())))
+                .andExpect(jsonPath("$.authorNickname", is(memberEntity.getNickname())));
     }
 }
