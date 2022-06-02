@@ -44,7 +44,7 @@ class BookDetailPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.to(() => AddNotePage()),
+        onPressed: () => Get.to(() => AddNotePage(book: book)),
         child: const Icon(Icons.camera_alt),
       ),
     );
@@ -78,7 +78,7 @@ class BookDetailPage extends StatelessWidget {
                             child: Image.network("https://picsum.photos/40"),
                           ),
                         ),
-                        Text(note.author),
+                        Text(note.authorNickname),
                         const Spacer(),
                         const Icon(Icons.more_horiz_outlined),
                       ],
@@ -86,11 +86,11 @@ class BookDetailPage extends StatelessWidget {
                   ),
                   AspectRatio(
                     aspectRatio: 1,
-                    child: NotePhotoGallery(photoUrls: note.pictureUrls),
+                    child: NotePhotoGallery(photoUrls: note.imageUris),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: ExpandableText(note.text),
+                    child: ExpandableText(note.content),
                   ),
                 ],
               ),

@@ -1,16 +1,22 @@
 class NoteVo {
-  final String author;
-  final List<String> pictureUrls;
-  final String text;
+  final String authorEmailAddress;
+  final String authorNickname;
+  final List<String> imageUris;
+  final String content;
+  final int page;
 
   NoteVo({
-    required this.author,
-    required this.pictureUrls,
-    required this.text,
+    required this.authorEmailAddress,
+    required this.authorNickname,
+    required this.imageUris,
+    required this.content,
+    required this.page,
   });
 
   NoteVo.fromJson(Map<String, dynamic> json)
-      : author = json['author'],
-        pictureUrls = List<String>.from(json['pictureUrls']),
-        text = json['text'];
+      : authorEmailAddress = json['authorEmailAddress'],
+        authorNickname = json['authorNickname'],
+        imageUris = List<String>.from(json['imageUris']),
+        content = json['content'],
+        page = json['page'];
 }

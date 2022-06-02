@@ -11,4 +11,8 @@ class BackendUris {
   static Uri getReadingRecordsUri(String isbn) {
     return Uri.parse(BASE + '/record/book/$isbn');
   }
+
+  static Uri addNoteUri(String isbn, int page) {
+    return Uri.parse(BASE + '/note/$isbn/$page');
+  }
 }

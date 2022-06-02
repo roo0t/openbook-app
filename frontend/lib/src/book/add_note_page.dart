@@ -6,20 +6,35 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'add_note_controller.dart';
+import 'book_vo.dart';
 
 class AddNotePage extends StatelessWidget {
-  const AddNotePage({Key? key}) : super(key: key);
+  final BookVo book;
+
+  const AddNotePage({Key? key, required this.book}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('독서 노트 작성'),
-        elevation: 0,
-      ),
-      body: GetBuilder<AddNoteController>(
-        init: AddNoteController(),
-        builder: (controller) => GestureDetector(
+    return GetBuilder<AddNoteController>(
+      init: AddNoteController(book),
+      builder: (controller) => Scaffold(
+        appBar: AppBar(
+          title: const Text('독서 노트 작성'),
+          elevation: 0,
+          actions: [
+            TextButton(
+              child: const Text(
+                '등록',
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                controller.submit();
+                Get.back();
+              },
+            ),
+          ],
+        ),
+        body: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: SafeArea(
