@@ -8,7 +8,11 @@ import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @Configuration
 public class AwsS3Config {
@@ -18,6 +22,8 @@ public class AwsS3Config {
     private String secretKey;
     @Value("${cloud.aws.region.static}")
     private String region;
+    @Value("${cloud.aws.s3.endpoint-uri}")
+    private String endpointUri;
 
     @Bean
     public AwsCredentials basicAwsCredentials() {
@@ -25,18 +31,24 @@ public class AwsS3Config {
     }
 
     @Bean
-    public S3Client s3Client(AwsCredentials awsCredentials) {
-        return S3Client.builder()
+    public S3Client s3Client(AwsCredentials awsCredentials) throws URISyntaxException {
+        S3ClientBuilder s3ClientBuilder = S3Client.builder()
                 .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
-                .build();
+                .credentialsProvider(StaticCredentialsProvider.create(awsCredentials));
+        if (endpointUri != null) {
+            s3ClientBuilder.endpointOverride(new URI(endpointUri));
+        }
+        return s3ClientBuilder.build();
     }
 
     @Bean
-    public S3Presigner s3Presigner(AwsCredentials awsCredentials) {
-        return S3Presigner.builder()
+    public S3Presigner s3Presigner(AwsCredentials awsCredentials) throws URISyntaxException {
+        S3Presigner.Builder builder = S3Presigner.builder()
                 .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
-                .build();
+                .credentialsProvider(StaticCredentialsProvider.create(awsCredentials));
+        if (endpointUri != null) {
+            builder.endpointOverride(new URI(endpointUri));
+        }
+        return builder.build();
     }
 }
