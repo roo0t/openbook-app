@@ -5,8 +5,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../wait_dialog.dart';
 import 'add_note_controller.dart';
 import 'book_vo.dart';
+import 'note_vo.dart';
 
 class AddNotePage extends StatelessWidget {
   final BookVo book;
@@ -45,9 +47,23 @@ class AddNotePage extends StatelessWidget {
                 '등록',
                 style: TextStyle(color: Colors.white),
               ),
-              onPressed: () {
-                controller.submit();
-                Get.back();
+              onPressed: () async {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) => const WaitDialog(),
+                );
+                NoteVo? note = await controller.submit();
+                Navigator.pop(context); // Hide loading dialog
+                if (note != null) {
+                  Get.back(result: note);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('오류가 발생했습니다.'),
+                    ),
+                  );
+                }
               },
             ),
           ],

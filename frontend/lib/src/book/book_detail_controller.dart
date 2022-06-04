@@ -11,19 +11,16 @@ import 'book_vo.dart';
 import 'note_vo.dart';
 
 class BookDetailController extends GetxController {
-  final BookVo book;
-  final RxList<NoteVo> notes = <NoteVo>[].obs;
+  final RxMap<String, RxList<NoteVo>> notes = RxMap<String, RxList<NoteVo>>();
 
-  BookDetailController(this.book);
+  BookDetailController();
 
-  @override
-  onInit() async {
-    super.onInit();
-
-    notes(await _loadNotes());
+  void loadNotes(BookVo book) async {
+    List<NoteVo> loadedNotes = await _loadNotes(book);
+    notes[book.isbn] = loadedNotes.obs;
   }
 
-  Future<List<NoteVo>> _loadNotes() async {
+  Future<List<NoteVo>> _loadNotes(BookVo book) async {
     http.Response? response;
     try {
       response = await http.get(
@@ -52,5 +49,12 @@ class BookDetailController extends GetxController {
       Get.offAll(() => const SignInPage());
     }
     return List.empty();
+  }
+
+  void addNote(BookVo book, NoteVo note) {
+    if (!notes.containsKey(book.isbn)) {
+      notes.assign(book.isbn, <NoteVo>[].obs);
+    }
+    notes[book.isbn]!.add(note);
   }
 }

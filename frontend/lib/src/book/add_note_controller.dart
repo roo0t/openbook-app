@@ -107,10 +107,10 @@ class AddNoteController extends GetxController {
     shouldShowCameraPreview(false);
   }
 
-  submit() async {
+  Future<NoteVo?> submit() async {
     int? page = int.tryParse(pageEditingController.text);
     if (page == null) {
-      return;
+      return null;
     }
     try {
       final request = http.MultipartRequest(

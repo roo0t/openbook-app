@@ -108,7 +108,7 @@ class ReadingRecordAddController extends GetxController {
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('오류가 발생하였습니다.'),
+                  content: Text('오류가 발생했습니다.'),
                 ),
               );
             }

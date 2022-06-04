@@ -15,50 +15,60 @@ import 'reading_record_controller.dart';
 
 class BookDetailPage extends StatelessWidget {
   final BookVo book;
-  late BookDetailController _controller;
 
-  BookDetailPage({Key? key, required this.book}) : super(key: key);
+  const BookDetailPage({Key? key, required this.book}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    _controller = Get.put(BookDetailController(book));
-    return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: CustomScrollView(
-              slivers: [
-                buildAppBar(),
-                buildTagList(),
-                buildInformationSection(),
-                buildDivider(),
-                buildRecordSummarySection(),
-                buildDivider(),
-                buildNoteList(),
-              ],
+    return GetBuilder<BookDetailController>(
+        init: BookDetailController(),
+        builder: (controller) {
+          controller.loadNotes(book);
+          return GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: Scaffold(
+              body: Column(
+                children: [
+                  Expanded(
+                    child: CustomScrollView(
+                      slivers: [
+                        buildAppBar(),
+                        buildTagList(),
+                        buildInformationSection(),
+                        buildDivider(),
+                        buildRecordSummarySection(),
+                        buildDivider(),
+                        buildNoteList(),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 80,
+                    child: PageSlider(
+                      totalPages: book.totalPages,
+                    ),
+                  ),
+                ],
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () async {
+                  NoteVo note = await Get.to(() => AddNotePage(book: book));
+                  controller.addNote(book, note);
+                },
+                child: const Icon(Icons.camera_alt),
+              ),
             ),
-          ),
-          SizedBox(
-            height: 80,
-            child: PageSlider(
-              totalPages: book.totalPages,
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.to(() => AddNotePage(book: book)),
-        child: const Icon(Icons.camera_alt),
-      ),
-    );
+          );
+        });
   }
 
   Widget buildNoteList() {
+    BookDetailController controller = Get.find<BookDetailController>();
     return Obx(
       () => SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            NoteVo note = _controller.notes[index];
+            NoteVo note = controller.notes[book.isbn]![index];
             return SizedBox(
               width: double.infinity,
               child: Card(
@@ -106,7 +116,7 @@ class BookDetailPage extends StatelessWidget {
               ),
             );
           },
-          childCount: _controller.notes.length,
+          childCount: controller.notes[book.isbn]?.length ?? 0,
         ),
       ),
     );
