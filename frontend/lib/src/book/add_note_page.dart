@@ -19,7 +19,25 @@ class AddNotePage extends StatelessWidget {
       init: AddNoteController(book),
       builder: (controller) => Scaffold(
         appBar: AppBar(
-          title: const Text('독서 노트 작성'),
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8.0),
+                child: Text(
+                  '독서 노트 작성',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                book.title,
+                style: const TextStyle(fontSize: 14),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              )
+            ],
+          ),
           elevation: 0,
           actions: [
             TextButton(
