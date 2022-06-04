@@ -11,8 +11,6 @@ class SignUpController extends GetxController {
 
   RxBool agreementChecked = false.obs;
   RxString emailAddress = "".obs;
-  RxString password = "".obs;
-  RxString passwordConfirmation = "".obs;
   RxBool passwordsAgree = true.obs;
   RxBool passwordAgreementVerificationStarted = false.obs;
   RxBool shouldShowDuplicateEmailAddressMessage = false.obs;
@@ -76,7 +74,7 @@ class SignUpController extends GetxController {
     final bool agreementValidationResult = validateAgreementChecked();
     if (formValidationResult == true && agreementValidationResult) {
       var result = await Get.find<UserController>()
-          .signUp(emailAddressController.text, password.value);
+          .signUp(emailAddressController.text, passwordController.text);
       if (result == SignUpResult.duplicateUsername) {
         shouldShowDuplicateEmailAddressMessage(true);
         signUpFormKey.currentState?.validate();
