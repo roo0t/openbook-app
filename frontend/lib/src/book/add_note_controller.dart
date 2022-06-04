@@ -40,6 +40,8 @@ class AddNoteController extends GetxController {
         ResolutionPreset.veryHigh,
         enableAudio: false,
       );
+    } else {
+      cameraController = null;
     }
   }
 
