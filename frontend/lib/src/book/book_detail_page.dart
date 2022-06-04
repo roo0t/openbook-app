@@ -84,6 +84,11 @@ class BookDetailPage extends StatelessWidget {
                           ),
                           Text(note.authorNickname),
                           const Spacer(),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Text('${note.page}쪽'),
+                          ),
                           const Icon(Icons.more_horiz_outlined),
                         ],
                       ),
