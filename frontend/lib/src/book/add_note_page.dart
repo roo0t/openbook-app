@@ -134,6 +134,19 @@ class AddNotePage extends StatelessWidget {
             ),
           ),
         ),
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12.0,
+              vertical: 8.0,
+            ),
+            child: Chip(
+              label: Text('${index + 1}/${controller.pictures.length}'),
+            ),
+          ),
+        )
       ],
     );
   }
