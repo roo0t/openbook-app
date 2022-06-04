@@ -83,6 +83,13 @@ class AddNoteController extends GetxController {
     }
   }
 
+  removePicture(int index) {
+    if (index < 0 || index >= pictures.length) {
+      throw Exception('Invalid index');
+    }
+    pictures.removeAt(index);
+  }
+
   showCameraPreview() async {
     if (cameraIsInitialized.isFalse) {
       await initializeCamera();

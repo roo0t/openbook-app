@@ -104,7 +104,7 @@ class AddNotePage extends StatelessWidget {
               }
             } else {
               var imageFile = File(controller.pictures[index]);
-              return pictureBox(cardSize, imageFile);
+              return pictureBox(cardSize, index, imageFile);
             }
           },
         ),
@@ -112,11 +112,29 @@ class AddNotePage extends StatelessWidget {
     );
   }
 
-  SizedBox pictureBox(double cardSize, File imageFile) {
-    return SizedBox(
-      width: cardSize,
-      height: cardSize,
-      child: Image.file(imageFile),
+  Widget pictureBox(double cardSize, int index, File imageFile) {
+    AddNoteController controller = Get.find<AddNoteController>();
+
+    return Stack(
+      children: [
+        SizedBox(
+          width: cardSize,
+          height: cardSize,
+          child: Image.file(imageFile),
+        ),
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: buildCircularIconButton(
+                Icons.delete_outline,
+                () => controller.removePicture(index),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -169,15 +187,9 @@ class AddNotePage extends StatelessWidget {
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    child: const Icon(Icons.close),
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(10),
-                      primary: Colors.white, // <-- Button color
-                      onPrimary: Colors.grey, // <-- Splash color
-                    ),
-                    onPressed: () => controller.hideCameraPreview(),
+                  child: buildCircularIconButton(
+                    Icons.close,
+                    () => controller.hideCameraPreview(),
                   ),
                 ),
               ),
@@ -185,5 +197,18 @@ class AddNotePage extends StatelessWidget {
           ],
         ),
         onTap: controller.takePicture);
+  }
+
+  ElevatedButton buildCircularIconButton(IconData iconData, onPressed) {
+    return ElevatedButton(
+      child: Icon(iconData),
+      style: ElevatedButton.styleFrom(
+        shape: const CircleBorder(),
+        padding: const EdgeInsets.all(10),
+        primary: Colors.white, // <-- Button color
+        onPrimary: Colors.grey, // <-- Splash color
+      ),
+      onPressed: onPressed,
+    );
   }
 }
