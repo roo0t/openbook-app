@@ -24,6 +24,8 @@ class AddNoteController extends GetxController {
   late final CameraDescription _camera;
   late final CameraController? cameraController;
   final TextEditingController textEditingController = TextEditingController();
+  final TextEditingController pageEditingController =
+      TextEditingController(text: '1');
 
   AddNoteController(this._book);
 
@@ -106,7 +108,10 @@ class AddNoteController extends GetxController {
   }
 
   submit() async {
-    int page = 42;
+    int? page = int.tryParse(pageEditingController.text);
+    if (page == null) {
+      return;
+    }
     try {
       final request = http.MultipartRequest(
         'POST',
@@ -144,5 +149,40 @@ class AddNoteController extends GetxController {
       pictures.add(image.path);
     }
     loadingImageFromGallery(false);
+  }
+
+  increasePage(int increment) {
+    int? page = int.tryParse(pageEditingController.text);
+    if (page == null) {
+      page = 1;
+    } else {
+      page += increment;
+      if (page < 1) {
+        page = 1;
+      }
+      if (page > _book.totalPages) {
+        page = _book.totalPages;
+      }
+    }
+    pageEditingController.text = page.toString();
+    pageEditingController.selection = TextSelection(
+      baseOffset: pageEditingController.text.length,
+      extentOffset: pageEditingController.text.length,
+    );
+  }
+
+  refinePageText() {
+    if (pageEditingController.text.isEmpty) {
+      pageEditingController.text = '1';
+    } else {
+      int? page = int.tryParse(pageEditingController.text);
+      if (page == null) {
+        pageEditingController.text = '1';
+      } else if (page < 1) {
+        pageEditingController.text = '1';
+      } else if (page > _book.totalPages) {
+        pageEditingController.text = '${_book.totalPages}';
+      }
+    }
   }
 }

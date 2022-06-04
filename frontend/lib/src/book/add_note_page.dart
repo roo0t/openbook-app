@@ -77,6 +77,7 @@ class AddNotePage extends StatelessWidget {
                     }),
                     height: MediaQuery.of(context).size.width,
                   ),
+                  Center(child: buildPageSelector()),
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(24.0, 8.0, 24.0, 24.0),
@@ -259,6 +260,44 @@ class AddNotePage extends StatelessWidget {
         onPrimary: Colors.grey, // <-- Splash color
       ),
       onPressed: onPressed,
+    );
+  }
+
+  Widget buildPageSelector() {
+    AddNoteController controller = Get.find<AddNoteController>();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        TextButton(
+          onPressed: () => controller.increasePage(-1),
+          child: const Text('-'),
+        ),
+        const SizedBox(width: 20),
+        SizedBox(
+          width: 80,
+          child: Focus(
+            onFocusChange: (hasFocus) {
+              if (!hasFocus) {
+                controller.refinePageText();
+              }
+            },
+            child: TextField(
+              controller: controller.pageEditingController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                suffixText: '/${book.totalPages}쪽',
+                isCollapsed: true,
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 20),
+        TextButton(
+          onPressed: () => controller.increasePage(1),
+          child: const Text('+'),
+        ),
+      ],
     );
   }
 }
