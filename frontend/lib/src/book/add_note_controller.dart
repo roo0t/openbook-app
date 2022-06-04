@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_native_image/flutter_native_image.dart';
@@ -18,6 +19,7 @@ class AddNoteController extends GetxController {
 
   final RxBool cameraIsInitialized = false.obs;
   final RxBool shouldShowCameraPreview = false.obs;
+  final RxBool loadingImageFromGallery = false.obs;
   RxList<String> pictures = <String>[].obs;
   late final CameraDescription _camera;
   late final CameraController? cameraController;
@@ -131,5 +133,16 @@ class AddNoteController extends GetxController {
       print(e);
     }
     return null;
+  }
+
+  browseGallery() async {
+    ImagePicker imagePicker = ImagePicker();
+    loadingImageFromGallery(true);
+    final XFile? image =
+        await imagePicker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      pictures.add(image.path);
+    }
+    loadingImageFromGallery(false);
   }
 }

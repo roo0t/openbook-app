@@ -170,19 +170,38 @@ class AddNotePage extends StatelessWidget {
   }
 
   Widget newPictureBox(double cardSize) {
-    return InkWell(
-      onTap: () => Get.find<AddNoteController>().showCameraPreview(),
-      child: SizedBox(
-        width: cardSize,
-        height: cardSize,
-        child: const Center(
-          child: Icon(
-            Icons.add_a_photo_outlined,
-            size: 30,
+    AddNoteController controller = Get.find<AddNoteController>();
+    return Obx(() {
+      if (controller.loadingImageFromGallery.isTrue) {
+        return SizedBox(
+          width: cardSize,
+          height: cardSize,
+          child: const Center(
+            child: CircularProgressIndicator(),
           ),
-        ),
-      ),
-    );
+        );
+      } else {
+        return SizedBox(
+          width: cardSize,
+          height: cardSize,
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildCircularIconButton(
+                  Icons.add_a_photo_outlined,
+                  () => controller.showCameraPreview(),
+                ),
+                buildCircularIconButton(
+                  Icons.image_outlined,
+                  () => controller.browseGallery(),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    });
   }
 
   Widget cameraPreviewBox(
