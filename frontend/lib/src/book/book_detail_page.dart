@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../expandable_text_widget.dart';
 import 'add_note_page.dart';
+import 'book_detail_controller.dart';
 import 'reading_record_list_page.dart';
 import 'book_vo.dart';
 import 'note_photo_gallery.dart';
@@ -14,11 +15,13 @@ import 'reading_record_controller.dart';
 
 class BookDetailPage extends StatelessWidget {
   final BookVo book;
+  late BookDetailController _controller;
 
-  const BookDetailPage({Key? key, required this.book}) : super(key: key);
+  BookDetailPage({Key? key, required this.book}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    _controller = Get.put(BookDetailController(book));
     return Scaffold(
       body: Column(
         children: [
@@ -50,54 +53,56 @@ class BookDetailPage extends StatelessWidget {
     );
   }
 
-  SliverList buildNoteList() {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          NoteVo note = book.notes[index];
-          return SizedBox(
-            width: double.infinity,
-            child: Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 10,
-                      right: 10,
-                      bottom: 10,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(1000),
-                            child: Image.network("https://picsum.photos/40"),
+  Widget buildNoteList() {
+    return Obx(
+      () => SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            NoteVo note = _controller.notes[index];
+            return SizedBox(
+              width: double.infinity,
+              child: Card(
+                margin: const EdgeInsets.only(bottom: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                        bottom: 10,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(1000),
+                              child: Image.network("https://picsum.photos/40"),
+                            ),
                           ),
-                        ),
-                        Text(note.authorNickname),
-                        const Spacer(),
-                        const Icon(Icons.more_horiz_outlined),
-                      ],
+                          Text(note.authorNickname),
+                          const Spacer(),
+                          const Icon(Icons.more_horiz_outlined),
+                        ],
+                      ),
                     ),
-                  ),
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: NotePhotoGallery(photoUrls: note.imageUris),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: ExpandableText(note.content),
-                  ),
-                ],
+                    AspectRatio(
+                      aspectRatio: 1,
+                      child: NotePhotoGallery(photoUrls: note.imageUris),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ExpandableText(note.content),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-        childCount: book.notes.length,
+            );
+          },
+          childCount: _controller.notes.length,
+        ),
       ),
     );
   }
