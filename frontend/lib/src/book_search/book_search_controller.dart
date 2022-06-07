@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:openbook/src/book/book_detail_page.dart';
@@ -13,6 +14,7 @@ import '../backend_uris.dart';
 class BookSearchController extends GetxController {
   RxString searchText = "".obs;
   RxList<BookVo> searchResults = RxList<BookVo>();
+  final TextEditingController searchTextController = TextEditingController();
 
   @override
   void onInit() {
@@ -68,5 +70,10 @@ class BookSearchController extends GetxController {
     } else {
       return null;
     }
+  }
+
+  clearSearchText() {
+    searchTextController.text = "";
+    searchResults.clear();
   }
 }

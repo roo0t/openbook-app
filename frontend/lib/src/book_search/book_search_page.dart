@@ -11,7 +11,7 @@ class BookSearchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.put(BookSearchController());
+    BookSearchController controller = Get.put(BookSearchController());
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -26,6 +26,24 @@ class BookSearchPage extends StatelessWidget {
             ),
           ],
         ),
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.center_focus_weak_outlined),
+          onPressed: () async {
+            final scanResult = await BarcodeScanner.scan(
+              options: const ScanOptions(
+                strings: {
+                  "cancel": "취소",
+                  "flash_on": "플래시 켜기",
+                  "flash_off": "플래시 끄기",
+                },
+              ),
+            );
+            if (scanResult.type == ResultType.Barcode) {
+              final isbn = scanResult.rawContent;
+              controller.searchIsbn(isbn);
+            }
+          },
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -36,36 +54,24 @@ class BookSearchPage extends StatelessWidget {
                   Expanded(
                     child: TextField(
                       keyboardType: TextInputType.text,
+                      controller: controller.searchTextController,
                       autofocus: true,
-                      decoration: const InputDecoration(
-                          hintText: '책 제목이나 저자, 출판사로 검색하세요',
-                          border: InputBorder.none,
-                          icon: Padding(
-                              padding: EdgeInsets.only(left: 13),
-                              child: Icon(Icons.search))),
-                      onChanged: (text) =>
-                          Get.find<BookSearchController>().search(text),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: IconButton(
-                      icon: const Icon(Icons.center_focus_weak_outlined),
-                      onPressed: () async {
-                        final scanResult = await BarcodeScanner.scan(
-                          options: const ScanOptions(
-                            strings: {
-                              "cancel": "취소",
-                              "flash_on": "플래시 켜기",
-                              "flash_off": "플래시 끄기",
-                            },
-                          ),
-                        );
-                        if (scanResult.type == ResultType.Barcode) {
-                          final isbn = scanResult.rawContent;
-                          Get.find<BookSearchController>().searchIsbn(isbn);
-                        }
-                      },
+                      style: const TextStyle(
+                        height: 1.4,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: '책 제목이나 저자, 출판사로 검색하세요',
+                        border: InputBorder.none,
+                        icon: const Padding(
+                          padding: EdgeInsets.only(left: 13),
+                          child: Icon(Icons.search),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: controller.clearSearchText,
+                        ),
+                      ),
+                      onChanged: (text) => controller.search(text),
                     ),
                   ),
                 ],
