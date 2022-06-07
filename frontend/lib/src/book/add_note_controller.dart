@@ -146,7 +146,23 @@ class AddNoteController extends GetxController {
     final XFile? image =
         await imagePicker.pickImage(source: ImageSource.gallery);
     if (image != null) {
-      pictures.add(image.path);
+      String imagePath = image.path;
+      ImageProperties properties =
+          await FlutterNativeImage.getImageProperties(imagePath);
+      if (properties.width != null && properties.height != null) {
+        const int targetWidth = 1080;
+        if (properties.width! > targetWidth) {
+          File compressedFile = await FlutterNativeImage.compressImage(
+            imagePath,
+            quality: 90,
+            targetWidth: targetWidth,
+            targetHeight:
+                (properties.height! * targetWidth / properties.width!).round(),
+          );
+          imagePath = compressedFile.path;
+        }
+      }
+      pictures.add(imagePath);
     }
     loadingImageFromGallery(false);
   }
