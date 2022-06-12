@@ -7,6 +7,7 @@ import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSuppor
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -36,6 +37,8 @@ public class NoteModelAssembler extends RepresentationModelAssemblerSupport<Note
         noteModel.setId(note.getId());
         noteModel.setAuthorEmailAddress(note.getAuthor().getEmailAddress());
         noteModel.setAuthorNickname(note.getAuthor().getNickname());
+        noteModel.setCreatedAt(
+                note.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS[Z]")));
         noteModel.setContent(note.getContent());
         noteModel.setPage(note.getPage());
         noteModel.setImageUris(note.getImageFileNames()

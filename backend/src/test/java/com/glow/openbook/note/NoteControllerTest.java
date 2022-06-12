@@ -26,10 +26,13 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static com.glow.openbook.DatesAreEqual.datesAreEqual;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
@@ -154,6 +157,10 @@ class NoteControllerTest {
                 .andExpect(jsonPath("$.content[0].content", is(notes.get(0).getContent())))
                 .andExpect(jsonPath("$.content[0].page", is(notes.get(0).getPage())))
                 .andExpect(jsonPath("$.content[0].imageUris", hasSize(notes.get(0).getImageFileNames().size())))
+                .andExpect(jsonPath(
+                        "$.content[0].createdAt",
+                        datesAreEqual(notes.get(0).getCreatedAt(),
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS[Z]"))))
                 .andExpect(jsonPath("$.links[?(@.rel=='self')]").exists())
         ;
     }
@@ -196,6 +203,7 @@ class NoteControllerTest {
                 .andExpect(jsonPath("$.content", is(content)))
                 .andExpect(jsonPath("$.page", is(page)))
                 .andExpect(jsonPath("$.imageUris", hasSize(1)))
+                .andExpect(jsonPath("$.createdAt").exists())
                 .andExpect(jsonPath("$.authorEmailAddress", is(memberEntity.getEmailAddress())))
                 .andExpect(jsonPath("$.authorNickname", is(memberEntity.getNickname())));
     }
