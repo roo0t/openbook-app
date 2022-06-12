@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../expandable_text_widget.dart';
+import '../time_util.dart';
 import 'add_note_page.dart';
 import 'book_detail_controller.dart';
 import 'reading_record_list_page.dart';
@@ -92,7 +93,22 @@ class BookDetailPage extends StatelessWidget {
                               child: Image.network("https://picsum.photos/40"),
                             ),
                           ),
-                          Text(note.authorNickname),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(note.authorNickname),
+                              Text(
+                                '${TimeUtil.relativeTime(
+                                  note.createdAt,
+                                  DateTime.now(),
+                                )} 전',
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
                           const Spacer(),
                           Padding(
                             padding:
