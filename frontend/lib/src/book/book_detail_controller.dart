@@ -17,6 +17,7 @@ class BookDetailController extends GetxController {
 
   void loadNotes(BookVo book) async {
     List<NoteVo> loadedNotes = await _loadNotes(book);
+    loadedNotes.sort(compareNotesByPageAndCreatedDate);
     notes[book.isbn] = loadedNotes.obs;
   }
 
@@ -37,10 +38,11 @@ class BookDetailController extends GetxController {
       var responseJson = json.decode(utf8.decode(response.bodyBytes));
       if (responseJson['_embedded'] != null &&
           responseJson['_embedded']['noteModelList'] != null) {
-        return responseJson['_embedded']['noteModelList']
-            .map<NoteVo>((noteJson) {
-          return NoteVo.fromJson(noteJson);
-        }).toList();
+        return responseJson['_embedded']['noteModelList'].map<NoteVo>(
+          (noteJson) {
+            return NoteVo.fromJson(noteJson);
+          },
+        ).toList();
       } else {
         return List.empty();
       }
@@ -55,6 +57,16 @@ class BookDetailController extends GetxController {
     if (!notes.containsKey(book.isbn)) {
       notes.assign(book.isbn, <NoteVo>[].obs);
     }
-    notes[book.isbn]!.add(note);
+    notes[book.isbn]!
+      ..add(note)
+      ..sort(compareNotesByPageAndCreatedDate);
+  }
+
+  int compareNotesByPageAndCreatedDate(NoteVo a, NoteVo b) {
+    var pageCompareResult = a.page.compareTo(b.page);
+    if (pageCompareResult != 0) {
+      return pageCompareResult;
+    }
+    return -a.createdAt.compareTo(b.createdAt);
   }
 }
