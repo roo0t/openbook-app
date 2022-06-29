@@ -25,6 +25,7 @@ class BookDetailPage extends StatelessWidget {
         init: BookDetailController(),
         builder: (controller) {
           controller.loadNotes(book);
+
           return GestureDetector(
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Scaffold(
@@ -32,6 +33,7 @@ class BookDetailPage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: CustomScrollView(
+                      controller: controller.scrollController,
                       slivers: [
                         buildAppBar(),
                         buildTagList(),
@@ -43,10 +45,25 @@ class BookDetailPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: 80,
-                    child: PageSlider(
-                      totalPages: book.totalPages,
+                  Obx(
+                    () => SizedBox(
+                      height: 80,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: PageSlider(
+                          coverImageUrl: book.coverImageUrl,
+                          totalPages: book.totalPages,
+                          notes: controller.notes[book.isbn] ?? [],
+                          onPageTurn: (pageTurnDetails) {
+                            var pages =
+                                (controller.noteKeys[book.isbn]?.keys ?? [])
+                                    .toList();
+                            pages.sort();
+                            int? nearestPage = findNearestPage(
+                                pages, pageTurnDetails.currentPage);
+                          },
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -66,75 +83,93 @@ class BookDetailPage extends StatelessWidget {
   Widget buildNoteList() {
     BookDetailController controller = Get.find<BookDetailController>();
     return Obx(
-      () => SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            NoteVo note = controller.notes[book.isbn]![index];
-            return SizedBox(
-              width: double.infinity,
-              child: Card(
-                margin: const EdgeInsets.only(bottom: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 10,
-                        right: 10,
-                        bottom: 10,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(1000),
-                              child: Image.network("https://picsum.photos/40"),
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+      () {
+        List<int> pages =
+            controller.notes[book.isbn]?.map((note) => note.page).toList() ??
+                [];
+        List<int> indices = [];
+        int uniquePageCount = 0;
+        for (int i = 0; i < pages.length; i++) {
+          if (i == 0 || pages[i] != pages[i - 1]) {
+            indices.add(-pages[i]);
+            uniquePageCount++;
+          }
+          indices.add(i);
+        }
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              if (indices[index] < 0) {
+                return buildNoteListPageHeader(context, -indices[index],
+                    controller.noteKeys[book.isbn]![-indices[index]]!);
+              } else {
+                NoteVo note = controller.notes[book.isbn]![indices[index]];
+                return SizedBox(
+                  width: double.infinity,
+                  child: Card(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 10, right: 10, bottom: 10),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(note.authorNickname),
-                              Text(
-                                '${TimeUtil.relativeTime(
-                                  note.createdAt,
-                                  DateTime.now(),
-                                )} 전',
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(1000),
+                                  child:
+                                      Image.network("https://picsum.photos/40"),
                                 ),
                               ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(note.authorNickname),
+                                  Text(
+                                    '${TimeUtil.relativeTime(
+                                      note.createdAt,
+                                      DateTime.now(),
+                                    )} 전',
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Spacer(),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text('${note.page}쪽'),
+                              ),
+                              const Icon(Icons.more_horiz_outlined),
                             ],
                           ),
-                          const Spacer(),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text('${note.page}쪽'),
-                          ),
-                          const Icon(Icons.more_horiz_outlined),
-                        ],
-                      ),
+                        ),
+                        AspectRatio(
+                          aspectRatio: 1,
+                          child: NotePhotoGallery(photoUrls: note.imageUris),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: ExpandableText(note.content),
+                        ),
+                      ],
                     ),
-                    AspectRatio(
-                      aspectRatio: 1,
-                      child: NotePhotoGallery(photoUrls: note.imageUris),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: ExpandableText(note.content),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-          childCount: controller.notes[book.isbn]?.length ?? 0,
-        ),
-      ),
+                  ),
+                );
+              }
+            },
+            childCount:
+                (controller.notes[book.isbn]?.length ?? 0) + uniquePageCount,
+          ),
+        );
+      },
     );
   }
 
@@ -301,5 +336,54 @@ class BookDetailPage extends StatelessWidget {
             );
           }),
     );
+  }
+
+  Widget buildNoteListPageHeader(
+      BuildContext context, int page, GlobalKey key) {
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        key: key,
+        margin: const EdgeInsets.only(bottom: 10, left: 2, right: 2),
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          child: Text(
+            '$page쪽',
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+        color: Theme.of(context).primaryColorDark,
+      ),
+    );
+  }
+
+  Map<int, GlobalKey> generateNoteKeys(List<NoteVo> notes) {
+    Map<int, GlobalKey> noteKeys = {};
+    notes.map((note) => note.page).toSet().forEach((page) {
+      noteKeys[page] = GlobalKey(debugLabel: page.toString());
+    });
+    return noteKeys;
+  }
+
+  int? findNearestPage(List<int> pages, int currentPage) {
+    if (pages.isEmpty) return null;
+    int start = 0;
+    int end = pages.length;
+    while (start < end - 1) {
+      int mid = ((start + end) / 2).floor();
+      if (pages[mid] <= currentPage) {
+        start = mid;
+      } else {
+        end = mid;
+      }
+    }
+
+    if (pages[start] == currentPage || start == pages.length - 1) {
+      return currentPage;
+    } else if (currentPage - pages[start] < pages[start + 1] - currentPage) {
+      return pages[start];
+    } else {
+      return pages[start + 1];
+    }
   }
 }

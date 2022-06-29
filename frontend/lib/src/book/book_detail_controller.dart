@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,6 +13,9 @@ import 'note_vo.dart';
 
 class BookDetailController extends GetxController {
   final RxMap<String, RxList<NoteVo>> notes = RxMap<String, RxList<NoteVo>>();
+  final RxMap<String, RxMap<int, GlobalKey>> noteKeys =
+      RxMap<String, RxMap<int, GlobalKey>>();
+  final ScrollController scrollController = ScrollController();
 
   BookDetailController();
 
@@ -19,6 +23,15 @@ class BookDetailController extends GetxController {
     List<NoteVo> loadedNotes = await _loadNotes(book);
     loadedNotes.sort(compareNotesByPageAndCreatedDate);
     notes[book.isbn] = loadedNotes.obs;
+    noteKeys[book.isbn] = generateNoteKeys(loadedNotes).obs;
+  }
+
+  Map<int, GlobalKey> generateNoteKeys(List<NoteVo> notes) {
+    Map<int, GlobalKey> noteKeys = {};
+    notes.map((note) => note.page).toSet().forEach((page) {
+      noteKeys[page] = GlobalKey(debugLabel: page.toString());
+    });
+    return noteKeys;
   }
 
   Future<List<NoteVo>> _loadNotes(BookVo book) async {
