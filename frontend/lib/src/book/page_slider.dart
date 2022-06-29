@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -167,8 +168,8 @@ class PageSliderPainter extends CustomPainter {
     required this.backCoverRect,
   });
 
-  double calculateHorizontalPosition(Rect rect, double normalizedValue) {
-    return rect.left + rect.width * normalizedValue;
+  double calculateHorizontalPosition(Rect rect, int page) {
+    return rect.left + rect.width * (page - 1) / (totalPages - 1);
   }
 
   @override
@@ -210,15 +211,37 @@ class PageSliderPainter extends CustomPainter {
             : unselectedCoverImageBoundaryPaint);
 
     // Draw slider
-    Paint currentPagePaint = Paint()
+    const double tickerInterval = 1;
+    final Paint tickerPaint = Paint()
+      ..color = Colors.black12
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 0.5;
+    const double tickerYStart = 10;
+    final double tickerYEnd = size.height - 10;
+    double previousX = -double.infinity;
+    for (int page = 1; page < totalPages; ++page) {
+      final double x = calculateHorizontalPosition(sliderRect, page);
+      if (page == 1 ||
+          (x / tickerInterval).floor() !=
+              (previousX / tickerInterval).floor()) {
+        canvas.drawLine(
+          Offset(x, tickerYStart),
+          Offset(x, tickerYEnd),
+          tickerPaint,
+        );
+      }
+      previousX = x;
+    }
+
+    final Paint currentPagePaint = Paint()
       ..color = Colors.red
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeWidth = 1.0;
 
     if (0 < page && page < totalPages) {
-      var currentPageX =
-          calculateHorizontalPosition(sliderRect, page / totalPages);
+      var currentPageX = calculateHorizontalPosition(sliderRect, page);
       canvas.drawLine(
         Offset(currentPageX, 0),
         Offset(currentPageX, size.height),
@@ -232,10 +255,15 @@ class PageSliderPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeWidth = 1.0;
     for (NotePosition notePosition in notePositions) {
-      var x = calculateHorizontalPosition(
-          sliderRect, notePosition.page / totalPages);
+      var x = calculateHorizontalPosition(sliderRect, notePosition.page);
       const double y = 10;
-      canvas.drawCircle(Offset(x, y), 1, notePositionPaint);
+      const double triangleWidth = 4;
+      final Path path = Path()
+        ..moveTo(x, y)
+        ..lineTo(x - triangleWidth / 2, y - triangleWidth / cos(pi / 6))
+        ..lineTo(x + triangleWidth / 2, y - triangleWidth / cos(pi / 6))
+        ..close();
+      canvas.drawPath(path, notePositionPaint);
     }
   }
 
