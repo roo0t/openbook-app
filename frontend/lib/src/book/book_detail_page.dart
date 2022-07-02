@@ -41,17 +41,44 @@ class BookDetailPage extends StatelessWidget {
           } else if (controller.currentPage.value == -1) {
             slivers.addAll(buildBackCoverNoteList());
           } else {
-            slivers.addAll(buildNoteList(context));
+            slivers
+                .addAll(buildNoteList(context, controller.currentPage.value));
           }
+          final CustomScrollView currentScrollView = CustomScrollView(
+            key: Key(controller.currentPage.value.toString()),
+            slivers: slivers,
+          );
+
           return GestureDetector(
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Scaffold(
               body: Column(
                 children: [
                   Expanded(
-                    child: CustomScrollView(
-                      controller: controller.scrollController,
-                      slivers: slivers,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 400),
+                      switchInCurve: Curves.easeOutExpo,
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        final bool turningLeft = controller.currentPage >= 0 &&
+                            controller.currentPage < controller.previousPage;
+                        Tween<Offset> noTransition =
+                            Tween<Offset>(begin: Offset.zero, end: Offset.zero);
+                        Tween<Offset> slidingIn = Tween<Offset>(
+                          begin: turningLeft
+                              ? const Offset(-1, 0)
+                              : const Offset(1, 0),
+                          end: Offset.zero,
+                        );
+                        return SlideTransition(
+                          position: (child.key == currentScrollView.key
+                                  ? slidingIn
+                                  : noTransition)
+                              .animate(animation),
+                          child: child,
+                        );
+                      },
+                      child: currentScrollView,
                     ),
                   ),
                   Obx(
@@ -84,90 +111,85 @@ class BookDetailPage extends StatelessWidget {
         });
   }
 
-  List<Widget> buildNoteList(BuildContext context) {
+  List<Widget> buildNoteList(BuildContext context, int page) {
     BookDetailController controller = Get.find<BookDetailController>();
+    final List<NoteVo> notes = controller.getNotesOfPage(book.isbn, page);
     return <Widget>[
-      Obx(
-        () => SliverAppBar(
-          title: SizedBox(
-            width: double.infinity,
-            child: Text(
-              '${controller.currentPage.value}쪽',
-              style: const TextStyle(color: Colors.white),
-            ),
+      SliverAppBar(
+        title: SizedBox(
+          width: double.infinity,
+          child: Text(
+            '$page쪽',
+            style: const TextStyle(color: Colors.white),
           ),
         ),
       ),
-      Obx(() {
-        final List<NoteVo> notes = controller.getNotesOfCurrentPage();
-        return SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              NoteVo note = notes[index];
-              return SizedBox(
-                width: double.infinity,
-                child: Card(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 10, right: 10, bottom: 10),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(1000),
-                                child:
-                                    Image.network("https://picsum.photos/40"),
-                              ),
+      SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            NoteVo note = notes[index];
+            return SizedBox(
+              width: double.infinity,
+              child: Card(
+                margin: const EdgeInsets.only(bottom: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 10, right: 10, bottom: 10),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(1000),
+                              child: Image.network("https://picsum.photos/40"),
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(note.authorNickname),
-                                Text(
-                                  '${TimeUtil.relativeTime(
-                                    note.createdAt,
-                                    DateTime.now(),
-                                  )} 전',
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                  ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(note.authorNickname),
+                              Text(
+                                '${TimeUtil.relativeTime(
+                                  note.createdAt,
+                                  DateTime.now(),
+                                )} 전',
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
                                 ),
-                              ],
-                            ),
-                            const Spacer(),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text('${note.page}쪽'),
-                            ),
-                            const Icon(Icons.more_horiz_outlined),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Text('${note.page}쪽'),
+                          ),
+                          const Icon(Icons.more_horiz_outlined),
+                        ],
                       ),
-                      AspectRatio(
-                        aspectRatio: 1,
-                        child: NotePhotoGallery(photoUrls: note.imageUris),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: ExpandableText(note.content),
-                      ),
-                    ],
-                  ),
+                    ),
+                    AspectRatio(
+                      aspectRatio: 1,
+                      child: NotePhotoGallery(photoUrls: note.imageUris),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ExpandableText(note.content),
+                    ),
+                  ],
                 ),
-              );
-            },
-            childCount: notes.length,
-          ),
-        );
-      }),
+              ),
+            );
+          },
+          childCount: notes.length,
+        ),
+      ),
     ];
   }
 

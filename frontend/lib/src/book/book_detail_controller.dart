@@ -15,14 +15,15 @@ class BookDetailController extends GetxController {
   final RxMap<String, RxList<NoteVo>> notes = RxMap<String, RxList<NoteVo>>();
   final RxMap<String, RxMap<int, GlobalKey>> noteKeys =
       RxMap<String, RxMap<int, GlobalKey>>();
-  final ScrollController scrollController = ScrollController();
   final RxnString currentBookIsbn = RxnString();
+  int previousPage = 0;
   final RxInt currentPage = 0.obs;
 
   BookDetailController();
 
   void loadNotes(BookVo book) async {
     currentBookIsbn(book.isbn);
+    previousPage = 0;
     currentPage(0);
     List<NoteVo> loadedNotes = await _loadNotes(book);
     loadedNotes.sort(compareNotesByPageAndCreatedDate);
@@ -87,17 +88,13 @@ class BookDetailController extends GetxController {
     return -a.createdAt.compareTo(b.createdAt);
   }
 
-  List<NoteVo> getNotesOfCurrentPage() {
-    if (currentBookIsbn.value == null) {
-      return [];
-    }
-    return notes[currentBookIsbn.value!]
-            ?.where((NoteVo note) => note.page == currentPage.value)
-            .toList() ??
+  List<NoteVo> getNotesOfPage(String isbn, int page) {
+    return notes[isbn]?.where((NoteVo note) => note.page == page).toList() ??
         [];
   }
 
   void turnPage(int page) {
+    previousPage = currentPage.value;
     currentPage(page);
   }
 }
