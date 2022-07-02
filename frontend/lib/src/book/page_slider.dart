@@ -68,9 +68,10 @@ class PageSliderController extends GetxController {
       }
     }
 
-    if (_pagesWithNotes[start] == currentPage ||
-        start == _pagesWithNotes.length - 1) {
+    if (_pagesWithNotes[start] == currentPage) {
       return currentPage;
+    } else if (start == _pagesWithNotes.length - 1) {
+      return _pagesWithNotes.last;
     } else if (currentPage - _pagesWithNotes[start] <
         _pagesWithNotes[start + 1] - currentPage) {
       return _pagesWithNotes[start];
@@ -123,7 +124,7 @@ class PageSlider extends StatelessWidget {
   _handleDrag(double x, Rect sliderRect, PageSliderController controller) {
     int page = getPageFromX(x, sliderRect);
     controller.to(page);
-    controller.setShowHint(page > 0);
+    controller.setShowHint(controller.nearestPageWithNote.value > 0);
   }
 
   _handleDragEnd(PageSliderController controller) {
@@ -339,7 +340,7 @@ class PageSliderPainter extends CustomPainter {
     // Draw back cover
     canvas.drawRect(
         backCoverRect,
-        page == totalPages
+        page == -1
             ? selectedCoverImageBoundaryPaint
             : unselectedCoverImageBoundaryPaint);
   }
