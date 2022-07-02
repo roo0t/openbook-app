@@ -124,6 +124,7 @@ class BookDetailPage extends StatelessWidget {
           ),
         ),
       ),
+      const SliverToBoxAdapter(child: SizedBox(height: 10)),
       SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
@@ -355,14 +356,6 @@ class BookDetailPage extends StatelessWidget {
             );
           }),
     );
-  }
-
-  Map<int, GlobalKey> generateNoteKeys(List<NoteVo> notes) {
-    Map<int, GlobalKey> noteKeys = {};
-    notes.map((note) => note.page).toSet().forEach((page) {
-      noteKeys[page] = GlobalKey(debugLabel: page.toString());
-    });
-    return noteKeys;
   }
 
   List<Widget> buildBackCoverNoteList() {
