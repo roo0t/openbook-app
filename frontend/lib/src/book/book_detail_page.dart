@@ -21,11 +21,28 @@ class BookDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<BookDetailController>(
+    return GetX<BookDetailController>(
         init: BookDetailController(),
         builder: (controller) {
-          controller.loadNotes(book);
+          if (controller.currentBookIsbn.value != book.isbn) {
+            controller.loadNotes(book);
+          }
 
+          List<Widget> slivers = <Widget>[];
+          if (controller.currentPage.value == 0) {
+            slivers.addAll([
+              buildAppBar(),
+              buildTagList(),
+              buildInformationSection(),
+              buildDivider(),
+              buildRecordSummarySection(),
+              buildDivider(),
+            ]);
+          } else if (controller.currentPage.value == -1) {
+            slivers.addAll(buildBackCoverNoteList());
+          } else {
+            slivers.addAll(buildNoteList(context));
+          }
           return GestureDetector(
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Scaffold(
@@ -34,15 +51,7 @@ class BookDetailPage extends StatelessWidget {
                   Expanded(
                     child: CustomScrollView(
                       controller: controller.scrollController,
-                      slivers: [
-                        buildAppBar(),
-                        buildTagList(),
-                        buildInformationSection(),
-                        buildDivider(),
-                        buildRecordSummarySection(),
-                        buildDivider(),
-                        buildNoteList(),
-                      ],
+                      slivers: slivers,
                     ),
                   ),
                   Obx(
@@ -55,12 +64,7 @@ class BookDetailPage extends StatelessWidget {
                           totalPages: book.totalPages,
                           notes: controller.notes[book.isbn] ?? [],
                           onPageTurn: (pageTurnDetails) {
-                            var pages =
-                                (controller.noteKeys[book.isbn]?.keys ?? [])
-                                    .toList();
-                            pages.sort();
-                            int? nearestPage = findNearestPage(
-                                pages, pageTurnDetails.currentPage);
+                            controller.turnPage(pageTurnDetails.currentPage);
                           },
                         ),
                       ),
@@ -80,103 +84,96 @@ class BookDetailPage extends StatelessWidget {
         });
   }
 
-  Widget buildNoteList() {
+  List<Widget> buildNoteList(BuildContext context) {
     BookDetailController controller = Get.find<BookDetailController>();
-    return Obx(
-      () {
-        List<int> pages =
-            controller.notes[book.isbn]?.map((note) => note.page).toList() ??
-                [];
-        List<int> indices = [];
-        int uniquePageCount = 0;
-        for (int i = 0; i < pages.length; i++) {
-          if (i == 0 || pages[i] != pages[i - 1]) {
-            indices.add(-pages[i]);
-            uniquePageCount++;
-          }
-          indices.add(i);
-        }
+    return <Widget>[
+      Obx(
+        () => SliverAppBar(
+          title: SizedBox(
+            width: double.infinity,
+            child: Text(
+              '${controller.currentPage.value}쪽',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+      Obx(() {
+        final List<NoteVo> notes = controller.getNotesOfCurrentPage();
         return SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              if (indices[index] < 0) {
-                return buildNoteListPageHeader(context, -indices[index],
-                    controller.noteKeys[book.isbn]![-indices[index]]!);
-              } else {
-                NoteVo note = controller.notes[book.isbn]![indices[index]];
-                return SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              left: 10, right: 10, bottom: 10),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 10),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(1000),
-                                  child:
-                                      Image.network("https://picsum.photos/40"),
-                                ),
+              NoteVo note = notes[index];
+              return SizedBox(
+                width: double.infinity,
+                child: Card(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 10, right: 10, bottom: 10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(1000),
+                                child:
+                                    Image.network("https://picsum.photos/40"),
                               ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(note.authorNickname),
-                                  Text(
-                                    '${TimeUtil.relativeTime(
-                                      note.createdAt,
-                                      DateTime.now(),
-                                    )} 전',
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 12,
-                                    ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(note.authorNickname),
+                                Text(
+                                  '${TimeUtil.relativeTime(
+                                    note.createdAt,
+                                    DateTime.now(),
+                                  )} 전',
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
                                   ),
-                                ],
-                              ),
-                              const Spacer(),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text('${note.page}쪽'),
-                              ),
-                              const Icon(Icons.more_horiz_outlined),
-                            ],
-                          ),
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text('${note.page}쪽'),
+                            ),
+                            const Icon(Icons.more_horiz_outlined),
+                          ],
                         ),
-                        AspectRatio(
-                          aspectRatio: 1,
-                          child: NotePhotoGallery(photoUrls: note.imageUris),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: ExpandableText(note.content),
-                        ),
-                      ],
-                    ),
+                      ),
+                      AspectRatio(
+                        aspectRatio: 1,
+                        child: NotePhotoGallery(photoUrls: note.imageUris),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: ExpandableText(note.content),
+                      ),
+                    ],
                   ),
-                );
-              }
+                ),
+              );
             },
-            childCount:
-                (controller.notes[book.isbn]?.length ?? 0) + uniquePageCount,
+            childCount: notes.length,
           ),
         );
-      },
-    );
+      }),
+    ];
   }
 
-  SliverToBoxAdapter buildDivider() =>
-      const SliverToBoxAdapter(child: Divider());
+  Widget buildDivider() => const SliverToBoxAdapter(child: Divider());
 
-  SliverToBoxAdapter buildInformationSection() {
+  Widget buildInformationSection() {
     return SliverToBoxAdapter(
       child: Column(
         children: [
@@ -201,7 +198,7 @@ class BookDetailPage extends StatelessWidget {
     );
   }
 
-  SliverToBoxAdapter buildTagList() {
+  Widget buildTagList() {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.only(top: 5, bottom: 5),
@@ -238,7 +235,7 @@ class BookDetailPage extends StatelessWidget {
     );
   }
 
-  SliverAppBar buildAppBar() {
+  Widget buildAppBar() {
     return SliverAppBar(
       pinned: true,
       snap: false,
@@ -338,25 +335,6 @@ class BookDetailPage extends StatelessWidget {
     );
   }
 
-  Widget buildNoteListPageHeader(
-      BuildContext context, int page, GlobalKey key) {
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        key: key,
-        margin: const EdgeInsets.only(bottom: 10, left: 2, right: 2),
-        child: Container(
-          padding: const EdgeInsets.all(4),
-          child: Text(
-            '$page쪽',
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
-        color: Theme.of(context).primaryColorDark,
-      ),
-    );
-  }
-
   Map<int, GlobalKey> generateNoteKeys(List<NoteVo> notes) {
     Map<int, GlobalKey> noteKeys = {};
     notes.map((note) => note.page).toSet().forEach((page) {
@@ -365,25 +343,7 @@ class BookDetailPage extends StatelessWidget {
     return noteKeys;
   }
 
-  int? findNearestPage(List<int> pages, int currentPage) {
-    if (pages.isEmpty) return null;
-    int start = 0;
-    int end = pages.length;
-    while (start < end - 1) {
-      int mid = ((start + end) / 2).floor();
-      if (pages[mid] <= currentPage) {
-        start = mid;
-      } else {
-        end = mid;
-      }
-    }
-
-    if (pages[start] == currentPage || start == pages.length - 1) {
-      return currentPage;
-    } else if (currentPage - pages[start] < pages[start + 1] - currentPage) {
-      return pages[start];
-    } else {
-      return pages[start + 1];
-    }
+  List<Widget> buildBackCoverNoteList() {
+    return [];
   }
 }

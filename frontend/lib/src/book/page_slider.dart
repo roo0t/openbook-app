@@ -20,7 +20,7 @@ class PageSliderController extends GetxController {
     required this.onPageTurn,
   });
 
-  to(int page) {
+  void to(int page) {
     this.page(page);
     onPageTurn?.call(PageTurnDetails(page));
   }
@@ -49,25 +49,56 @@ class PageSlider extends StatelessWidget {
   final String coverImageUrl;
   final int totalPages;
   final List<NoteVo> notes;
+  late final List<int> _pagesWithNotes;
   final void Function(PageTurnDetails)? onPageTurn;
 
-  const PageSlider({
+  PageSlider({
     Key? key,
     required this.coverImageUrl,
     required this.totalPages,
     required this.notes,
     this.onPageTurn,
-  }) : super(key: key);
+  }) : super(key: key) {
+    _pagesWithNotes = notes.map((note) => note.page).toSet().toList();
+    _pagesWithNotes.sort();
+  }
 
-  void handleTap(double x, Rect sliderRect, PageSliderController controller) {
+  void _handleTap(double x, Rect sliderRect, PageSliderController controller) {
     if (x < sliderRect.left) {
       controller.to(0);
     } else if (x < sliderRect.right) {
-      controller.to(
-        ((x - sliderRect.left) / sliderRect.width * totalPages).toInt(),
-      );
+      final int tappedPage =
+          ((x - sliderRect.left) / sliderRect.width * totalPages).toInt();
+      final int? nearestPageWithNote = _findNearestPageWithNote(tappedPage);
+      if (nearestPageWithNote != null) {
+        controller.to(nearestPageWithNote);
+      }
     } else {
-      controller.to(controller.totalPages);
+      controller.to(-1);
+    }
+  }
+
+  int? _findNearestPageWithNote(int currentPage) {
+    if (_pagesWithNotes.isEmpty) return null;
+    int start = 0;
+    int end = _pagesWithNotes.length;
+    while (start < end - 1) {
+      int mid = ((start + end) / 2).floor();
+      if (_pagesWithNotes[mid] <= currentPage) {
+        start = mid;
+      } else {
+        end = mid;
+      }
+    }
+
+    if (_pagesWithNotes[start] == currentPage ||
+        start == _pagesWithNotes.length - 1) {
+      return currentPage;
+    } else if (currentPage - _pagesWithNotes[start] <
+        _pagesWithNotes[start + 1] - currentPage) {
+      return _pagesWithNotes[start];
+    } else {
+      return _pagesWithNotes[start + 1];
     }
   }
 
@@ -110,12 +141,13 @@ class PageSlider extends StatelessWidget {
             width: widgetWidth,
             child: Obx(
               () => GestureDetector(
-                onHorizontalDragStart: (DragStartDetails details) =>
-                    handleTap(details.localPosition.dx, sliderRect, controller),
+                onHorizontalDragStart: (DragStartDetails details) => _handleTap(
+                    details.localPosition.dx, sliderRect, controller),
                 onHorizontalDragUpdate: (DragUpdateDetails details) =>
-                    handleTap(details.localPosition.dx, sliderRect, controller),
-                onTapUp: (TapUpDetails details) =>
-                    handleTap(details.localPosition.dx, sliderRect, controller),
+                    _handleTap(
+                        details.localPosition.dx, sliderRect, controller),
+                onTapUp: (TapUpDetails details) => _handleTap(
+                    details.localPosition.dx, sliderRect, controller),
                 child: Container(
                   decoration: const BoxDecoration(color: Color(0xFFFAFAFA)),
                   child: CustomPaint(
